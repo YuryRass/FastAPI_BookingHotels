@@ -1,7 +1,7 @@
 """Конечные точки для бронирования отелей"""
 from fastapi import APIRouter
-from bookings.dao import BookingsDAO
-from bookings.shemas import SBookings
+from app.bookings.dao import BookingsDAO
+from app.bookings.shemas import SBookings
 
 router: APIRouter = APIRouter(
     prefix="/bookings",

@@ -9,4 +9,4 @@ venv/
 env/
 
 # Project files
-migrations/
+app/migrations/

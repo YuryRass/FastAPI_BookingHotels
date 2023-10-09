@@ -4,7 +4,7 @@ from datetime import date
 from sqlalchemy import ForeignKey, Date, Computed
 from sqlalchemy.orm import Mapped, mapped_column
 
-from database import Base
+from app.database import Base
 
 
 class Bookings(Base):

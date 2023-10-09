@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
-from users.shemas import SUserAuth
-from users.dao import UsersDAO
-from users.models import Users
-from users.auth import get_password_hash
+from app.users.shemas import SUserAuth
+from app.users.dao import UsersDAO
+from app.users.models import Users
+from app.users.auth import get_password_hash
 
 router: APIRouter = APIRouter(
     prefix="/auth",
