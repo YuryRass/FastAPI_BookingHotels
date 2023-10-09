@@ -1,5 +1,5 @@
 """Класс, реализующий CRUD-операции к модели 'Пользователи'"""
-from dao.base import BaseDAO
+from app.dao.base import BaseDAO
 from app.users.models import Users
 
 

@@ -41,14 +41,14 @@ class BaseDAO:
             return result.scalar_one_or_none()
 
     @classmethod
-    async def find_all(cls):
+    async def find_all(cls, **kwargs):
         """Поиск всех записей из модели
 
         Returns: список объектов модели
         """
         session: AsyncSession
         async with async_session_maker() as session:
-            stmt = select(cls.model)
+            stmt = select(cls.model).filter_by(**kwargs)
             result = await session.execute(stmt)
             return result.scalars().all()
 
