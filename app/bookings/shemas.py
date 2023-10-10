@@ -15,7 +15,7 @@ class SBookings(BaseModel):
     total_days: int
 
     class Config:
-        """атрибут orm_mode позволяет обращаться
+        """атрибут from_attributes позволяет обращаться
         к pydantic-модели, как к ORM модели
         """
         from_attributes = True
