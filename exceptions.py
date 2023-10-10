@@ -2,31 +2,49 @@
 from fastapi import HTTPException, status
 
 
-UserUnauthorizedException: HTTPException = HTTPException(
-    status_code=status.HTTP_409_CONFLICT,
-    detail='User is unauthorized',
-)
+class UserUnauthorizedException(HTTPException):
+    status_code = status.HTTP_409_CONFLICT
+    detail = 'User is unauthorized'
 
-IncorrectJWTtokenException: HTTPException = HTTPException(
-    status_code=status.HTTP_401_UNAUTHORIZED,
-    detail='JWT token is incorrect'
-)
+    def __init__(self):
+        super().__init__(status_code=self.status_code, detail=self.detail)
 
-JWTtokenExpiredException: HTTPException = HTTPException(
-    status_code=status.HTTP_401_UNAUTHORIZED,
-    detail='JWT token is expired',
-)
 
-UserIsNotPresentException: HTTPException = HTTPException(
-    status_code=status.HTTP_401_UNAUTHORIZED,
-)
+class IncorrectJWTtokenException(HTTPException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    detail = 'JWT token is incorrect'
 
-UserIsAllredyRegistered: HTTPException = HTTPException(
-    status_code=status.HTTP_401_UNAUTHORIZED,
-    detail="User is allready registered",
-)
+    def __init__(self):
+        super().__init__(status_code=self.status_code, detail=self.detail)
 
-IncorrectEmailOrPasswordException: HTTPException = HTTPException(
-    status_code=status.HTTP_401_UNAUTHORIZED,
-    detail="Incorrect e-mail or password",
-)
+
+class JWTtokenExpiredException(HTTPException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    detail = 'JWT token is expired'
+
+    def __init__(self):
+        super().__init__(status_code=self.status_code, detail=self.detail)
+
+
+class UserIsNotPresentException(HTTPException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    detail = ''
+
+    def __init__(self):
+        super().__init__(status_code=self.status_code, detail=self.detail)
+
+
+class UserIsAllredyRegistered(HTTPException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    detail = "User is allready registered"
+
+    def __init__(self):
+        super().__init__(status_code=self.status_code, detail=self.detail)
+
+
+class IncorrectEmailOrPasswordException(HTTPException):
+    status_code = status.HTTP_401_UNAUTHORIZED,
+    detail = "Incorrect e-mail or password"
+
+    def __init__(self):
+        super().__init__(status_code=self.status_code, detail=self.detail)
