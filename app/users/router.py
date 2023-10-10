@@ -1,11 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, Response
 from app.users.dependencies import get_current_user
 from app.users.shemas import SUserAuth
 from app.users.dao import UsersDAO
 from app.users.models import Users
 from app.users.auth import \
     authentication_user, create_jwt_token, get_password_hash
-from app.config import COOKIE_KEY
+from config import COOKIE_KEY
+from exceptions import \
+    IncorrectEmailOrPasswordException, UserIsAllredyRegistered
 
 router: APIRouter = APIRouter(
     prefix="/auth",
@@ -20,7 +22,7 @@ async def user_register(user_data: SUserAuth) -> None:
         user_data (SUserAuth): логин и пароль пользователя
 
     Raises:
-        HTTPException: если пользователь уже зареган
+        HTTPException: пользователь уже зареган
     """
     existing_user: Users | None = await UsersDAO.find_one_or_none(
         email=user_data.email
@@ -28,9 +30,7 @@ async def user_register(user_data: SUserAuth) -> None:
     # Если пользователь уже есть в БД (т.е. он зарегитсрирован),
     # то мы вызываем исключение (повторная регистрация нам не нужна)
     if existing_user:
-        raise HTTPException(
-            status_code=500, detail="User is allready registered"
-        )
+        raise UserIsAllredyRegistered
     password_hash: str = get_password_hash(
         password=user_data.password
     )
@@ -58,10 +58,7 @@ async def login_user(response: Response, user_data: SUserAuth):
         user_data.email, user_data.password
     )
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User is unauthorized!"
-        )
+        raise IncorrectEmailOrPasswordException
     else:
         jwt_token: str = create_jwt_token({"sub": str(user.id)})
         response.set_cookie(

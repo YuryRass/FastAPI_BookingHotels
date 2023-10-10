@@ -4,11 +4,17 @@
 """
 
 from datetime import datetime
-from fastapi import Depends, HTTPException, Request, status
+
+from fastapi import Depends, Request
 from jose import jwt, JWTError
-from app.config import settings, COOKIE_KEY
+
+from config import settings, COOKIE_KEY
 from app.users.models import Users
 from app.users.dao import UsersDAO
+from exceptions import (
+    IncorrectJWTtokenException, JWTtokenExpiredException,
+    UserIsNotPresentException, UserUnauthorizedException
+)
 
 
 def get_token(request: Request) -> str | None:
@@ -24,12 +30,8 @@ def get_token(request: Request) -> str | None:
         str | None: токен пользователя
     """
     token: str | None = request.cookies.get(COOKIE_KEY)
-    print(token)
     if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='User is unauthorized'
-        )
+        raise UserUnauthorizedException
     return token
 
 
@@ -40,10 +42,9 @@ async def get_current_user(token: str = Depends(get_token)) -> Users:
         token (str, optional): токен. Defaults to Depends(get_token).
 
     Raises:
-        HTTPException: _description_
-        HTTPException: _description_
-        HTTPException: _description_
-        HTTPException: _description_
+        HTTPException: IncorrectJWTtokenException
+        HTTPException: JWTtokenExpiredException
+        HTTPException: UserIsNotPresentException
 
     Returns:
         Users: пользователь
@@ -54,20 +55,19 @@ async def get_current_user(token: str = Depends(get_token)) -> Users:
             key=settings.SECRET_KEY,
             algorithms=settings.JWT_ALGORITHM
         )
-    except JWTError as e:
-        print(e)
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=1)
+    except JWTError:
+        raise IncorrectJWTtokenException
 
     expire: str | None = payload.get('exp')
     if (not expire) or (int(expire) < datetime.utcnow().timestamp()):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=2)
+        raise JWTtokenExpiredException
 
     user_id: str | None = payload.get('sub')
     if not user_id:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=3)
+        raise UserIsNotPresentException
 
     user: Users = await UsersDAO.find_by_id(int(user_id))
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=3)
+        raise UserIsNotPresentException
 
     return user

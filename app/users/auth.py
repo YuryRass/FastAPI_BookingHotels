@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from jose import jwt
 from pydantic import EmailStr
 from passlib.context import CryptContext
-from app.config import settings
+from config import settings
 from app.users.dao import UsersDAO
 
 from app.users.models import Users

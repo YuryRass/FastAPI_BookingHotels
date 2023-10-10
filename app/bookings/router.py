@@ -12,7 +12,9 @@ router: APIRouter = APIRouter(
 
 
 @router.get("")
-async def get_bookings(user: Users = Depends(get_current_user)):  # -> list[SBookings]
+async def get_bookings(
+    user: Users = Depends(get_current_user)
+) -> list[SBookings]:
     """Возвращает информацию по бронированиям отелей
     для пользователя, который зашел на сайт
 
