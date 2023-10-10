@@ -1,5 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+COOKIE_KEY: str = 'booking_access_token'
+
 
 class Settings(BaseSettings):
     DB_HOST: str

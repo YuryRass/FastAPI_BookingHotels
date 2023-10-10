@@ -1,9 +1,11 @@
-from fastapi import APIRouter, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from app.users.dependencies import get_current_user
 from app.users.shemas import SUserAuth
 from app.users.dao import UsersDAO
 from app.users.models import Users
 from app.users.auth import \
     authentication_user, create_jwt_token, get_password_hash
+from app.config import COOKIE_KEY
 
 router: APIRouter = APIRouter(
     prefix="/auth",
@@ -40,6 +42,18 @@ async def user_register(user_data: SUserAuth) -> None:
 
 @router.post('/login')
 async def login_user(response: Response, user_data: SUserAuth):
+    """Вход пользователя на сайт
+
+    Args:
+        response (Response): HTTP ответ
+        user_data (SUserAuth): данные о пользователе
+
+    Raises:
+        HTTPException: User is unauthorized!
+
+    Returns:
+        str: JWT токен
+    """
     user: Users | None = await authentication_user(
         user_data.email, user_data.password
     )
@@ -51,8 +65,32 @@ async def login_user(response: Response, user_data: SUserAuth):
     else:
         jwt_token: str = create_jwt_token({"sub": str(user.id)})
         response.set_cookie(
-            key="booking_access_token",
+            key=COOKIE_KEY,
             value=jwt_token,
             httponly=True
         )
         return jwt_token
+
+
+@router.post('/logout')
+async def logout_user(response: Response):
+    """Выход пользователя из сайта
+
+    Args:
+        response (Response): HTTP ответ
+    """
+    response.delete_cookie(key=COOKIE_KEY)
+
+
+@router.get('/me')
+async def read_users_me(current_user: Users = Depends(get_current_user)):
+    """Вывод инфорации о текущем пользователе, который воспользовался
+    данной 'конечной точкой'
+
+    Args:
+        current_user (Users, optional): текущий пользователь.
+
+    Returns:
+        Users: текущий пользователь
+    """
+    return current_user

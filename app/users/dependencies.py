@@ -6,7 +6,7 @@
 from datetime import datetime
 from fastapi import Depends, HTTPException, Request, status
 from jose import jwt, JWTError
-from app.config import settings
+from app.config import settings, COOKIE_KEY
 from app.users.models import Users
 from app.users.dao import UsersDAO
 
@@ -23,7 +23,7 @@ def get_token(request: Request) -> str | None:
     Returns:
         str | None: токен пользователя
     """
-    token: str = request.cookies.get('booking_access_token')
+    token: str | None = request.cookies.get(COOKIE_KEY)
     print(token)
     if not token:
         raise HTTPException(
