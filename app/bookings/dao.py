@@ -1,6 +1,6 @@
 """Класс, реализующий CRUD-операции к модели 'Бронирования'"""
 from app.bookings.models import Bookings
-from app.hotels.models import Rooms
+from app.hotels.rooms.models import Rooms
 from app.dao.base import BaseDAO
 from database import async_session_maker
 from datetime import date
