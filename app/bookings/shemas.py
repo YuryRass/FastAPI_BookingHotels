@@ -5,7 +5,6 @@ from pydantic import BaseModel
 
 class SBookings(BaseModel):
     """Бронирования отелей"""
-    id: int
     room_id: int
     user_id: int
     date_from: date
@@ -13,6 +12,10 @@ class SBookings(BaseModel):
     price: int
     total_cost: int
     total_days: int
+    image_id: int
+    name: str
+    description: str
+    services: list[str]
 
     class Config:
         """атрибут from_attributes позволяет обращаться

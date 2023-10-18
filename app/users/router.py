@@ -81,8 +81,7 @@ async def logout_user(response: Response):
 
 @router.get('/me')
 async def read_users_me(current_user: Users = Depends(get_current_user)):
-    """Вывод инфорации о текущем пользователе, который воспользовался
-    данной 'конечной точкой'
+    """Вывод инфорации о текущем пользователе
 
     Args:
         current_user (Users, optional): текущий пользователь.
