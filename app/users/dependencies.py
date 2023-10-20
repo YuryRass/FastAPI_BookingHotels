@@ -8,10 +8,10 @@ from datetime import datetime
 from fastapi import Depends, Request
 from jose import jwt, JWTError
 
-from config import settings, COOKIE_KEY
+from app.config import settings, COOKIE_KEY
 from app.users.models import Users
 from app.users.dao import UsersDAO
-from exceptions import (
+from app.exceptions import (
     IncorrectJWTtokenException, JWTtokenExpiredException,
     UserIsNotPresentException, UserUnauthorizedException
 )

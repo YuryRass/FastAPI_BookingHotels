@@ -6,7 +6,7 @@ from app.bookings.shemas import SBookings
 from app.users.dependencies import get_current_user
 from app.users.models import Users
 from app.bookings.models import Bookings
-from exceptions import NoFreeRoomsException
+from app.exceptions import NoFreeRoomsException
 
 router: APIRouter = APIRouter(
     prefix="/bookings",

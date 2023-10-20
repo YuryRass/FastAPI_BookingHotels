@@ -5,8 +5,8 @@ from app.users.dao import UsersDAO
 from app.users.models import Users
 from app.users.auth import \
     authentication_user, create_jwt_token, get_password_hash
-from config import COOKIE_KEY
-from exceptions import \
+from app.config import COOKIE_KEY
+from app.exceptions import \
     IncorrectEmailOrPasswordException, UserIsAllredyRegistered
 
 router: APIRouter = APIRouter(

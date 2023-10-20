@@ -1,13 +1,13 @@
 """Класс, реализующий CRUD-операции к модели 'Бронирования'"""
+from datetime import date
+from sqlalchemy import select, delete, insert, and_, or_, func
+from sqlalchemy.ext.asyncio import AsyncSession, AsyncConnection
+
 from app.bookings.models import Bookings
 from app.hotels.rooms.models import Rooms
 from app.dao.base import BaseDAO
 from app.users.models import Users
-from database import async_session_maker
-from datetime import date
-from sqlalchemy import select, delete, insert, and_, or_, func
-from sqlalchemy.ext.asyncio import AsyncSession, AsyncConnection
-from database import engine
+from app.database import async_session_maker, engine
 
 
 class BookingsDAO(BaseDAO):

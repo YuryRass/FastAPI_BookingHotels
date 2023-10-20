@@ -1,7 +1,7 @@
 """Основной DAO (Data Access Object)"""
 from sqlalchemy import select, insert
 from sqlalchemy.ext.asyncio import AsyncSession
-from database import async_session_maker
+from app.database import async_session_maker
 
 
 class BaseDAO:
