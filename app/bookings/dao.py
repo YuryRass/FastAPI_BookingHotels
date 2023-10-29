@@ -35,7 +35,9 @@ class BookingsDAO(BaseDAO):
 
         # Получаем кол-во свободных комнат на заданные даты
         rooms_left: int = await cls._get_left_rooms(
-            room_id, date_from, date_to
+            room_id=room_id,
+            date_from=date_from,
+            date_to=date_to
         )
 
         if rooms_left > 0:
@@ -117,7 +119,6 @@ class BookingsDAO(BaseDAO):
             return res.scalar()
 
     async def _get_left_rooms(
-        cls,
         room_id: int,
         date_from: date,
         date_to: date
@@ -156,9 +157,16 @@ class BookingsDAO(BaseDAO):
         session: AsyncSession
         async with async_session_maker() as session:
             get_rooms_left = (
-                select(Rooms.quantity - func.count(booked_rooms.c.room_id)).
+                select(
+                    Rooms.quantity -
+                    func.count(booked_rooms.c.room_id).
+                    filter(booked_rooms.c.room_id.is_not(None))
+                ).
                 select_from(Rooms).
-                join(booked_rooms, Rooms.id == booked_rooms.c.room_id).
+                join(
+                    booked_rooms, Rooms.id == booked_rooms.c.room_id,
+                    isouter=True
+                ).
                 where(Rooms.id == room_id).
                 group_by(Rooms.quantity, booked_rooms.c.room_id)
             )
