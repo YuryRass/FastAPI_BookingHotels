@@ -29,7 +29,6 @@ class BaseDAO:
     @classmethod
     async def find_one_or_none(cls, **kwargs):
         """Осуществляет поиск записи,
-
         удовлетворяющей переданным условиям
 
         Returns: объект модели либо None значение

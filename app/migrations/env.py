@@ -6,12 +6,10 @@ from app.database import Base
 from app.config import settings
 import sys
 from logging.config import fileConfig
-from os.path import abspath, dirname
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
 
 
 # this is the Alembic Config object, which provides
