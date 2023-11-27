@@ -1,12 +1,13 @@
 """Конечные точки для бронирования отелей"""
+
 from datetime import date
 from fastapi import APIRouter, Depends, Response, status
 from app.bookings.dao import BookingsDAO
-from app.bookings.shemas import SBookings
 from app.users.dependencies import get_current_user
 from app.users.models import Users
 from app.bookings.models import Bookings
 from app.exceptions import NoFreeRoomsException
+# from app.bookings.shemas import SBookings
 
 router: APIRouter = APIRouter(
     prefix="/bookings",
@@ -17,12 +18,13 @@ router: APIRouter = APIRouter(
 @router.get("")
 async def get_bookings(
     user: Users = Depends(get_current_user)
-) -> list[SBookings]:
+):  # -> list[SBookings]:
     """Возвращает информацию по бронированиям отелей
     для авторизованного пользователя
 
-    Returns:
-        list[SBookings]: список всех броней
+    Args:
+        user (Users, optional): текущий пользователь.
+    Defaults to Depends(get_current_user).
     """
 
     return await BookingsDAO.all_bookings(user_id=user.id)
@@ -43,10 +45,7 @@ async def add_booking_for_user(
         user (Users, optional): текущий авторизованный пользователь.
 
     Raises:
-        NoFreeRoomsException: _description_
-
-    Returns:
-        Bookings: новые данные о бронировании
+        NoFreeRoomsException: нет свободных комнат
     """
 
     booking: Bookings = await BookingsDAO.add_booking(
@@ -63,7 +62,15 @@ async def delete_booking(
     response: Response,
     user: Users = Depends(get_current_user)
 ):
-    booking: Bookings | None = \
-        await BookingsDAO.delete_booking(user.id, booking_id)
+    """Удаление информации о бронировани (по ID брони)
+    для текущего пользователя
+
+    Args:
+        booking_id (int): ID бронирования
+        response (Response): HTTP ответ
+        user (Users, optional): текущий пользователь.
+    Defaults to Depends(get_current_user).
+    """
+    booking = await BookingsDAO.delete_booking(user.id, booking_id)
     if booking:
         response.status_code = status.HTTP_204_NO_CONTENT
