@@ -65,6 +65,11 @@ class BookingsDAO(BaseDAO):
         cls,
         user_id: int
     ):
+        """Выводит все бронирования пользователя
+
+        Args:
+            user_id (int): ID пользователя
+        """
         all_bookings_query = (
             select(
                 cls.model.room_id,
@@ -97,7 +102,12 @@ class BookingsDAO(BaseDAO):
         user_id: int,
         booking_id: int
     ):
+        """Удаляет информацию о бронировании по его ID
 
+        Args:
+            user_id (int): ID пользователя
+            booking_id (int): ID брони
+        """
         res = await super().delete_records(
             id=booking_id,
             user_id=user_id
