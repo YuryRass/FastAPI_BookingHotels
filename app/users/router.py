@@ -18,10 +18,13 @@ router: APIRouter = APIRouter(
 @router.post("/register")
 async def user_register(user_data: SUserAuth) -> None:
     """Регистрация пользователя
+
     Args:
+
         user_data (SUserAuth): логин и пароль пользователя
 
     Raises:
+
         HTTPException: пользователь уже зареган
     """
     existing_user: Users | None = await UsersDAO.find_one_or_none(
@@ -45,13 +48,17 @@ async def login_user(response: Response, user_data: SUserAuth):
     """Вход пользователя на сайт
 
     Args:
+
         response (Response): HTTP ответ
+
         user_data (SUserAuth): данные о пользователе
 
     Raises:
+
         HTTPException: User is unauthorized!
 
     Returns:
+
         str: JWT токен
     """
     user: Users | None = await authentication_user(
@@ -74,6 +81,7 @@ async def logout_user(response: Response):
     """Выход пользователя из сайта
 
     Args:
+
         response (Response): HTTP ответ
     """
     response.delete_cookie(key=COOKIE_KEY)
@@ -84,9 +92,11 @@ async def read_users_me(current_user: Users = Depends(get_current_user)):
     """Вывод инфорации о текущем пользователе
 
     Args:
+
         current_user (Users, optional): текущий пользователь.
 
     Returns:
+
         Users: текущий пользователь
     """
     return current_user

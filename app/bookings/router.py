@@ -23,8 +23,10 @@ async def get_bookings(
     для авторизованного пользователя
 
     Args:
-        user (Users, optional): текущий пользователь.
-    Defaults to Depends(get_current_user).
+
+        user (Users, optional): текущий пользователь
+
+    Defaults to Depends(get_current_user)
     """
 
     return await BookingsDAO.all_bookings(user_id=user.id)
@@ -39,12 +41,17 @@ async def add_booking_for_user(
     для авторизованного пользователя
 
     Args:
+
         room_id (int): ID комнаты
+
         date_from (date): дата заезда
+
         date_to (date): дата выезда
+
         user (Users, optional): текущий авторизованный пользователь.
 
     Raises:
+
         NoFreeRoomsException: нет свободных комнат
     """
 
@@ -66,9 +73,13 @@ async def delete_booking(
     для текущего пользователя
 
     Args:
+
         booking_id (int): ID бронирования
+
         response (Response): HTTP ответ
+
         user (Users, optional): текущий пользователь.
+
     Defaults to Depends(get_current_user).
     """
     booking = await BookingsDAO.delete_booking(user.id, booking_id)

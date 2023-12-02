@@ -84,6 +84,6 @@ def create_jwt_token(data: dict[str, str]) -> str:
 
     jwt_token: str = jwt.encode(
         claims=to_encode, key=settings.SECRET_KEY,
-        algorithm=settings.JWT_ALGORITHM
+        algorithm=settings.ALGORITHM
     )
     return jwt_token

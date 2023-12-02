@@ -15,14 +15,19 @@ router: APIRouter = APIRouter(
 async def get_all_rooms(
     hotel_id: int, date_from: date, date_to: date
 ) -> list[SRooms]:
+
     """Получает список всех комнат для конкретного отеля
 
     Args:
+
         hotel_id (int): ID отеля
+
         date_from (date): дата заезда
+
         date_to (date): дата выезда
 
     Returns:
+
         list[SRooms]: список всех номеров
     """
     rooms = await RoomDAO.find_all(hotel_id, date_from, date_to)

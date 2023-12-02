@@ -139,16 +139,8 @@ class BookingsDAO(BaseDAO):
             where(
                 and_(
                     cls.model.room_id == room_id,
-                    or_(
-                        and_(
-                            cls.model.date_from >= date_from,
-                            cls.model.date_from <= date_to
-                        ),
-                        and_(
-                            cls.model.date_from <= date_from,
-                            cls.model.date_to > date_from
-                        )
-                    )
+                    Bookings.date_from < date_to,
+                    Bookings.date_to > date_from,
                 )
             )
         ).cte("booked_rooms")

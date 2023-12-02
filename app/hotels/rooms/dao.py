@@ -1,6 +1,6 @@
 """Модуль, реализующий CRUD-опреации для модели 'Rooms'"""
 from datetime import date
-from sqlalchemy import and_, or_, select, func
+from sqlalchemy import and_, select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.bookings.models import Bookings
@@ -29,20 +29,15 @@ class RoomDAO(BaseDAO):
             date_from (date): дата заезда
             date_to (date): дата выезда
         """
+
         # получаем забронированные комнаты на заданную дату
         # для всех отелей
         booked_rooms = (
             select(Bookings)
             .where(
-                or_(
-                    and_(
-                        Bookings.date_from >= date_from,
-                        Bookings.date_from <= date_to
-                    ),
-                    and_(
-                        Bookings.date_from <= date_from,
-                        Bookings.date_to > date_from
-                    )
+                and_(
+                    Bookings.date_from < date_to,
+                    Bookings.date_to > date_from,
                 )
             )
         ).cte("booked_rooms")

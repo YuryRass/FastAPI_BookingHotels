@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str
 
     # алгоритм шифрования для JWT токена
-    JWT_ALGORITHM: str
+    ALGORITHM: str
 
     @property
     def DATABASE_URL(self):

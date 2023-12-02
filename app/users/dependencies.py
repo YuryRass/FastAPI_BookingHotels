@@ -53,7 +53,7 @@ async def get_current_user(token: str = Depends(get_token)) -> Users:
         payload: dict[str, str] = jwt.decode(
             token=token,
             key=settings.SECRET_KEY,
-            algorithms=settings.JWT_ALGORITHM
+            algorithms=settings.ALGORITHM
         )
     except JWTError:
         raise IncorrectJWTtokenException

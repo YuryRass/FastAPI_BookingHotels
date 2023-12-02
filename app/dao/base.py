@@ -80,4 +80,4 @@ class BaseDAO:
         session: AsyncSession
         async with async_session_maker() as session:
             result = await session.execute(stmt)
-            return result.mappings().one()
+            return result.mappings().all()

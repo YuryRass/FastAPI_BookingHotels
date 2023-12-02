@@ -33,15 +33,9 @@ class HotelDAO(BaseDAO):
         booked_rooms = (
             select(Bookings).
             where(
-                or_(
-                    and_(
-                        Bookings.date_from >= date_from,
-                        Bookings.date_from <= date_to
-                    ),
-                    and_(
-                        Bookings.date_from <= date_from,
-                        Bookings.date_to > date_from
-                    )
+                and_(
+                    Bookings.date_from < date_to,
+                    Bookings.date_to > date_from,
                 )
             )
         ).cte("booked_rooms")
