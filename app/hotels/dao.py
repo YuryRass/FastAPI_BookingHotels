@@ -105,6 +105,6 @@ class HotelDAO(BaseDAO):
         Args:
             hotel_id (int): ID отеля
         """
-        
+
         res = await super().find_one_or_none(id=hotel_id)
         return res
