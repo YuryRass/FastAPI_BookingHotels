@@ -1,5 +1,6 @@
 """Основной DAO (Data Access Object)"""
-from sqlalchemy import select, insert
+from sqlalchemy import select, insert, delete
+from sqlalchemy import CTE
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import async_session_maker
 
@@ -40,11 +41,43 @@ class BaseDAO:
     async def add(cls, **data):
         """Добавление записи в таблицу
         """
+        stmt = (
+            insert(cls.model).
+            values(**data).
+            returning(cls.model.__table__.columns)
+        )
         session: AsyncSession
         async with async_session_maker() as session:
-            stmt = (
-                insert(cls.model).
-                values(**data)
-            )
-            await session.execute(stmt)
+            result = await session.execute(stmt)
             await session.commit()
+            return result.mappings().all()
+
+    @classmethod
+    async def delete_records(cls, **kwargs):
+        stmt = (
+            delete(cls.model).
+            filter_by(**kwargs).
+            returning(cls.model.id)
+        )
+
+        session: AsyncSession
+        async with async_session_maker() as session:
+            result = await session.execute(stmt)
+            await session.commit()
+            return result.mappings().all()
+
+    @staticmethod
+    async def get_all(query: CTE, **kwargs):
+        """Выводит все строки из CTE объекта по заданным критериям
+
+        Args:
+            query (CTE): SQL запрос представленный как:
+        WITH ... AS (SELECT ...)
+        """
+        stmt = (
+            select(query.columns).filter_by(**kwargs)
+        )
+        session: AsyncSession
+        async with async_session_maker() as session:
+            result = await session.execute(stmt)
+            return result.mappings().one()

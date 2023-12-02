@@ -1,7 +1,7 @@
 """Класс, реализующий CRUD-операции к модели 'Бронирования'"""
 
 from datetime import date
-from sqlalchemy import select, delete, insert, and_, or_, func
+from sqlalchemy import select, and_, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.bookings.models import Bookings
@@ -49,26 +49,14 @@ class BookingsDAO(BaseDAO):
                 _price = await session.execute(get_price)
                 price: int = _price.scalar()
 
-                stmt = (
-                    insert(cls.model).
-                    values(
-                        room_id=room_id,
-                        user_id=user_id,
-                        date_from=date_from,
-                        date_to=date_to,
-                        price=price,
-                    ).
-                    returning(
-                        cls.model.id,
-                        cls.model.user_id,
-                        cls.model.room_id,
-                        cls.model.date_from,
-                        cls.model.date_to
-                    )
-                )
-                new_booking = await session.execute(stmt)
-                await session.commit()
-                return new_booking.mappings().one()
+            res = await super().add(
+                room_id=room_id,
+                user_id=user_id,
+                date_from=date_from,
+                date_to=date_to,
+                price=price,
+            )
+            return res
         else:
             return None
 
@@ -95,12 +83,13 @@ class BookingsDAO(BaseDAO):
             .join(Bookings, Users.id == cls.model.user_id)
             .join(Rooms, cls.model.room_id == Rooms.id)
             .where(Users.id == user_id)
-        )
+        ).cte("all_bookings_query")
 
-        session: AsyncSession
-        async with async_session_maker() as session:
-            user_bookings = await session.execute(all_bookings_query)
-            return user_bookings.mappings().all()
+        result = await super().get_all(
+            all_bookings_query,
+            user_id=user_id
+        )
+        return result
 
     @classmethod
     async def delete_booking(
@@ -108,23 +97,13 @@ class BookingsDAO(BaseDAO):
         user_id: int,
         booking_id: int
     ):
-        delete_booking_query = (
-            delete(cls.model)
-            .where(
-                and_(
-                    cls.model.id == booking_id,
-                    cls.model.user_id == user_id
-                )
 
-            )
-            .returning(cls.model)
+        res = await super().delete_records(
+            id=booking_id,
+            user_id=user_id
         )
 
-        session: AsyncSession
-        async with async_session_maker() as session:
-            res = await session.execute(delete_booking_query)
-            await session.commit()
-            return res.mappings().one()
+        return res
 
     @classmethod
     async def _get_left_rooms(
