@@ -1,5 +1,5 @@
-from datetime import date
-from fastapi import APIRouter
+from datetime import date, datetime
+from fastapi import APIRouter, Query
 
 from app.hotels.dao import HotelDAO
 from app.hotels.models import Hotels
@@ -7,13 +7,15 @@ from app.hotels.shemas import SFreeHotels, SHotel
 
 router: APIRouter = APIRouter(
     prefix='/hotels',
-    tags=["All hotels"]
+    tags=["Отели"]
 )
 
 
 @router.get("/{location}")
 async def get_all_hotels(
-    location: str, date_from: date, date_to: date
+    location: str,
+    date_from: date = Query(..., description=f"Например: {datetime.now().date()}"),
+    date_to: date = Query(..., description=f"Например: {datetime.now().date()}")
 ) -> list[SFreeHotels]:
 
     """Вывод всех свободных отелей на текущие даты

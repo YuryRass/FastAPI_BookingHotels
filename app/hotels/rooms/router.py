@@ -7,7 +7,7 @@ from app.hotels.rooms.shemas import SRooms
 
 router: APIRouter = APIRouter(
     prefix="/hotels",
-    tags=["Get all rooms"]
+    tags=["Комнаты отелей"]
 )
 
 
