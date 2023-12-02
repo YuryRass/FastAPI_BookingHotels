@@ -1,16 +1,17 @@
 """Модуль, реализующий CRUD-опреации для модели 'Rooms'"""
 from datetime import date
 from sqlalchemy import and_, or_, select, func
-from sqlalchemy.ext.asyncio import AsyncConnection
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.bookings.models import Bookings
 from app.hotels.rooms.models import Rooms
 from app.dao.base import BaseDAO
-from app.database import engine
+from app.database import async_session_maker
 
 
 class RoomDAO(BaseDAO):
     """CRUD-операции для Rooms"""
+
     model = Rooms
 
     @classmethod
@@ -20,7 +21,7 @@ class RoomDAO(BaseDAO):
         date_from: date,
         date_to: date
     ):
-        """Возвращает список список всех номеров комнат
+        """Возвращает список всех номеров комнат
         определенного отеля для заданных дат
 
         Args:
@@ -46,31 +47,32 @@ class RoomDAO(BaseDAO):
             )
         ).cte("booked_rooms")
 
-        conn: AsyncConnection
-        async with engine.connect() as conn:
-            get_rooms_query = (
-                select(
-                    Rooms,
-                    (Rooms.price * (date_to - date_from).days)
-                    .label('total_cost'),
-                    (
-                        Rooms.quantity -
-                        func.count(
-                            booked_rooms.c.room_id
-                        )
-                        .filter(booked_rooms.c.room_id.isnot(None))
-                    ).label('rooms_left')
-                )
-                .select_from(Rooms)
-                .join(
-                    booked_rooms, Rooms.id == booked_rooms.c.room_id,
-                    isouter=True
-                )
-                .where(Rooms.hotel_id == hotel_id)
-                .group_by(
-                    Rooms.id, Rooms.quantity,
-                    booked_rooms.c.room_id
-                )
+        get_rooms_query = (
+            select(
+                Rooms.__table__.columns,
+                (Rooms.price * (date_to - date_from).days)
+                .label('total_cost'),
+                (
+                    Rooms.quantity -
+                    func.count(
+                        booked_rooms.c.room_id
+                    )
+                    .filter(booked_rooms.c.room_id.isnot(None))
+                ).label('rooms_left')
             )
-            rooms = await conn.execute(get_rooms_query)
-            return rooms.all()
+            .select_from(Rooms)
+            .join(
+                booked_rooms, Rooms.id == booked_rooms.c.room_id,
+                isouter=True
+            )
+            .where(Rooms.hotel_id == hotel_id)
+            .group_by(
+                Rooms.id, Rooms.quantity,
+                booked_rooms.c.room_id
+            )
+        )
+
+        session: AsyncSession
+        async with async_session_maker() as session:
+            rooms = await session.execute(get_rooms_query)
+            return rooms.mappings().all()
