@@ -1,8 +1,9 @@
 """Модуль отвечает за хеширование и сверку пользоватльских паролей"""
 from datetime import datetime, timedelta
+
 from jose import jwt
-from pydantic import EmailStr
 from passlib.context import CryptContext
+from pydantic import EmailStr
 
 from app.config import settings
 from app.users.dao import UsersDAO

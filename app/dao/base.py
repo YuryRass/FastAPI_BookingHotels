@@ -1,7 +1,7 @@
 """Основной DAO (Data Access Object)"""
-from sqlalchemy import select, insert, delete
-from sqlalchemy import CTE
+from sqlalchemy import CTE, delete, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.database import async_session_maker
 
 

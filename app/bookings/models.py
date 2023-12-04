@@ -1,7 +1,8 @@
 """Реализация модели 'Бронирования'"""
 
 from datetime import date
-from sqlalchemy import ForeignKey, Date, Computed
+
+from sqlalchemy import Computed, Date, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base

@@ -1,5 +1,6 @@
 """Pydantic-схема 'Свободные отели'"""
 from decimal import Decimal
+
 from pydantic import BaseModel
 
 

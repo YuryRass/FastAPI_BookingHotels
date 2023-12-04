@@ -6,15 +6,17 @@
 from datetime import datetime
 
 from fastapi import Depends, Request
-from jose import jwt, JWTError
+from jose import JWTError, jwt
 
-from app.config import settings, COOKIE_KEY
-from app.users.models import Users
-from app.users.dao import UsersDAO
+from app.config import COOKIE_KEY, settings
 from app.exceptions import (
-    IncorrectJWTtokenException, JWTtokenExpiredException,
-    UserIsNotPresentException, UserUnauthorizedException
+    IncorrectJWTtokenException,
+    JWTtokenExpiredException,
+    UserIsNotPresentException,
+    UserUnauthorizedException,
 )
+from app.users.dao import UsersDAO
+from app.users.models import Users
 
 
 def get_token(request: Request) -> str | None:

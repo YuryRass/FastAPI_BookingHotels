@@ -1,14 +1,15 @@
 """Класс, реализующий CRUD-операции к модели 'Бронирования'"""
 
 from datetime import date
-from sqlalchemy import select, and_, or_, func
+
+from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.bookings.models import Bookings
-from app.hotels.rooms.models import Rooms
 from app.dao.base import BaseDAO
-from app.users.models import Users
 from app.database import async_session_maker
+from app.hotels.rooms.models import Rooms
+from app.users.models import Users
 
 
 class BookingsDAO(BaseDAO):

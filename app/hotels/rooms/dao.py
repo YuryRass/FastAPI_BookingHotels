@@ -1,12 +1,13 @@
 """Модуль, реализующий CRUD-опреации для модели 'Rooms'"""
 from datetime import date
-from sqlalchemy import and_, select, func
+
+from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.bookings.models import Bookings
-from app.hotels.rooms.models import Rooms
 from app.dao.base import BaseDAO
 from app.database import async_session_maker
+from app.hotels.rooms.models import Rooms
 
 
 class RoomDAO(BaseDAO):

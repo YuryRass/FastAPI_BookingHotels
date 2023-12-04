@@ -1,13 +1,12 @@
 from fastapi import APIRouter, Depends, Response
-from app.users.dependencies import get_current_user
-from app.users.shemas import SUserAuth
-from app.users.dao import UsersDAO
-from app.users.models import Users
-from app.users.auth import \
-    authentication_user, create_jwt_token, get_password_hash
+
 from app.config import COOKIE_KEY
-from app.exceptions import \
-    IncorrectEmailOrPasswordException, UserIsAllredyRegistered
+from app.exceptions import IncorrectEmailOrPasswordException, UserIsAllredyRegistered
+from app.users.auth import authentication_user, create_jwt_token, get_password_hash
+from app.users.dao import UsersDAO
+from app.users.dependencies import get_current_user
+from app.users.models import Users
+from app.users.shemas import SUserAuth
 
 router: APIRouter = APIRouter(
     prefix="/auth",

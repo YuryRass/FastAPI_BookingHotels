@@ -1,5 +1,7 @@
 from pathlib import Path
+
 from PIL import Image
+
 from app.tasks.celery import celery
 
 
@@ -8,7 +10,7 @@ def modify_picture(path: str):
     """Создает два изображения с размерами 400х200 и 1000х500
 
     Args:
-        path (str): путь до изображения
+        path (str): путь до изображения, которое будет изменяться
     """
     img_path = Path(path)
     img = Image.open(img_path)

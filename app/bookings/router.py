@@ -1,12 +1,15 @@
 """Конечные точки для бронирования отелей"""
 
 from datetime import date
+
 from fastapi import APIRouter, Depends, Response, status
+
 from app.bookings.dao import BookingsDAO
-from app.users.dependencies import get_current_user
-from app.users.models import Users
 from app.bookings.models import Bookings
 from app.exceptions import NoFreeRoomsException
+from app.users.dependencies import get_current_user
+from app.users.models import Users
+
 # from app.bookings.shemas import SBookings
 
 router: APIRouter = APIRouter(

@@ -1,4 +1,5 @@
 from datetime import date, datetime
+
 from fastapi import APIRouter, Query
 from fastapi_cache.decorator import cache
 
