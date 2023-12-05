@@ -4,25 +4,22 @@ from datetime import date
 
 from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from app.bookings.models import Bookings
 from app.dao.base import BaseDAO
 from app.database import async_session_maker
 from app.hotels.rooms.models import Rooms
-from app.users.models import Users
 
 
 class BookingsDAO(BaseDAO):
     """DAO объект 'Бронирования'"""
+
     model = Bookings
 
     @classmethod
     async def add_booking(
-        cls,
-        user_id: int,
-        room_id: int,
-        date_from: date,
-        date_to: date
+        cls, user_id: int, room_id: int, date_from: date, date_to: date
     ):
         """Осуществляет бронирование комнаты, если есть свободные номера
 
@@ -37,9 +34,7 @@ class BookingsDAO(BaseDAO):
 
         # Получаем кол-во свободных комнат на заданные даты
         rooms_left: int = await cls._get_left_rooms(
-            room_id=room_id,
-            date_from=date_from,
-            date_to=date_to
+            room_id=room_id, date_from=date_from, date_to=date_to
         )
 
         if rooms_left > 0:
@@ -62,10 +57,7 @@ class BookingsDAO(BaseDAO):
             return None
 
     @classmethod
-    async def all_bookings(
-        cls,
-        user_id: int
-    ):
+    async def all_bookings(cls, user_id: int):
         """Выводит все бронирования пользователя
 
         Args:
@@ -83,46 +75,27 @@ class BookingsDAO(BaseDAO):
                 Rooms.image_id,
                 Rooms.name,
                 Rooms.description,
-                Rooms.services
-            )
-            .select_from(Users)
-            .join(Bookings, Users.id == cls.model.user_id)
-            .join(Rooms, cls.model.room_id == Rooms.id)
-            .where(Users.id == user_id)
+                Rooms.services,
+            ).options(joinedload(cls.model.room), joinedload(cls.model.user))
         ).cte("all_bookings_query")
 
-        result = await super().get_all(
-            all_bookings_query,
-            user_id=user_id
-        )
+        result = await super().get_all(all_bookings_query, user_id=user_id)
         return result
 
     @classmethod
-    async def delete_booking(
-        cls,
-        user_id: int,
-        booking_id: int
-    ):
+    async def delete_booking(cls, user_id: int, booking_id: int):
         """Удаляет информацию о бронировании по его ID
 
         Args:
             user_id (int): ID пользователя
             booking_id (int): ID брони
         """
-        res = await super().delete_records(
-            id=booking_id,
-            user_id=user_id
-        )
+        res = await super().delete_records(id=booking_id, user_id=user_id)
 
         return res
 
     @classmethod
-    async def _get_left_rooms(
-        cls,
-        room_id: int,
-        date_from: date,
-        date_to: date
-    ) -> int:
+    async def _get_left_rooms(cls, room_id: int, date_from: date, date_to: date) -> int:
         """Возвращает кол-во свободных комнат на заданные даты
 
         Args:
@@ -136,8 +109,7 @@ class BookingsDAO(BaseDAO):
 
         # получаем забронированные комнаты на заданную дату
         booked_rooms = (
-            select(cls.model).
-            where(
+            select(cls.model).where(
                 and_(
                     cls.model.room_id == room_id,
                     Bookings.date_from < date_to,
@@ -150,17 +122,15 @@ class BookingsDAO(BaseDAO):
         async with async_session_maker() as session:
             get_rooms_left = (
                 select(
-                    Rooms.quantity -
-                    func.count(booked_rooms.c.room_id).
-                    filter(booked_rooms.c.room_id.is_not(None))
-                ).
-                select_from(Rooms).
-                join(
-                    booked_rooms, Rooms.id == booked_rooms.c.room_id,
-                    isouter=True
-                ).
-                where(Rooms.id == room_id).
-                group_by(Rooms.quantity, booked_rooms.c.room_id)
+                    Rooms.quantity
+                    - func.count(booked_rooms.c.room_id).filter(
+                        booked_rooms.c.room_id.is_not(None)
+                    )
+                )
+                .select_from(Rooms)
+                .join(booked_rooms, Rooms.id == booked_rooms.c.room_id, isouter=True)
+                .where(Rooms.id == room_id)
+                .group_by(Rooms.quantity, booked_rooms.c.room_id)
             )
             # Получаем свободные комнаты на заданные даты
             rooms_left = await session.execute(get_rooms_left)
