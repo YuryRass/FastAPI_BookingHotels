@@ -2,11 +2,9 @@
 from datetime import date
 
 from sqlalchemy import and_, func, select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.bookings.models import Bookings
 from app.dao.base import BaseDAO
-from app.database import async_session_maker
 from app.hotels.rooms.models import Rooms
 
 
@@ -23,7 +21,7 @@ class RoomDAO(BaseDAO):
         date_to: date
     ):
         """Возвращает список всех номеров комнат
-        определенного отеля для заданных дат
+        определенного отеля для конкретных дат
 
         Args:
             hotel_id (int): ID отеля
@@ -66,9 +64,7 @@ class RoomDAO(BaseDAO):
                 Rooms.id, Rooms.quantity,
                 booked_rooms.c.room_id
             )
-        )
+        ).cte("get_rooms_query")
 
-        session: AsyncSession
-        async with async_session_maker() as session:
-            rooms = await session.execute(get_rooms_query)
-            return rooms.mappings().all()
+        res = await super().get_all(get_rooms_query)
+        return res
