@@ -38,9 +38,7 @@ def verify_password(secret: str, hash: str) -> bool:
     return pwd_context.verify(secret, hash)
 
 
-async def authentication_user(
-    user_email: EmailStr, user_password: str
-) -> Users | None:
+async def authentication_user(user_email: EmailStr, user_password: str) -> Users | None:
     """Аутентификация пользователя.
 
     Args:
@@ -50,16 +48,13 @@ async def authentication_user(
     Returns: Users | None
     """
     user_from_db: Users | None
-    user_from_db = await UsersDAO.find_one_or_none(
-        email=user_email
-    )
+    user_from_db = await UsersDAO.find_one_or_none(email=user_email)
 
     # если e-mail пользователя или
     # хеш его пароля отсутствует в БД,
     # то возвращаем None значение
-    if (
-        not user_from_db or
-        not verify_password(user_password, user_from_db.hashed_password)
+    if not (
+        user_from_db and verify_password(user_password, user_from_db.hashed_password)
     ):
         return None
     # в противном случае, возвращаем данного пользователя
@@ -84,7 +79,6 @@ def create_jwt_token(data: dict[str, str]) -> str:
     to_encode.update({"exp": expire})
 
     jwt_token: str = jwt.encode(
-        claims=to_encode, key=settings.SECRET_KEY,
-        algorithm=settings.ALGORITHM
+        claims=to_encode, key=settings.SECRET_KEY, algorithm=settings.ALGORITHM
     )
     return jwt_token
