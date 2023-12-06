@@ -76,7 +76,9 @@ class BookingsDAO(BaseDAO):
                 Rooms.name,
                 Rooms.description,
                 Rooms.services,
-            ).options(joinedload(cls.model.room), joinedload(cls.model.user))
+            )
+            .options(joinedload(cls.model.room))
+            .options(joinedload(cls.model.user))
         ).cte("all_bookings_query")
 
         result = await super().get_all(all_bookings_query, user_id=user_id)
