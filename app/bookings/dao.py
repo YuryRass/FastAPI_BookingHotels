@@ -4,12 +4,13 @@ from datetime import date
 
 from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 
 from app.bookings.models import Bookings
 from app.dao.base import BaseDAO
 from app.database import async_session_maker
 from app.hotels.rooms.models import Rooms
+from app.users.models import Users
 
 
 class BookingsDAO(BaseDAO):
@@ -65,24 +66,16 @@ class BookingsDAO(BaseDAO):
         """
         all_bookings_query = (
             select(
-                cls.model.room_id,
-                cls.model.user_id,
-                cls.model.date_from,
-                cls.model.date_to,
-                Rooms.price,
-                cls.model.total_cost,
-                cls.model.total_days,
-                Rooms.image_id,
-                Rooms.name,
-                Rooms.description,
-                Rooms.services,
+                cls.model
             )
-            .options(joinedload(cls.model.room))
-            .options(joinedload(cls.model.user))
-        ).cte("all_bookings_query")
-
-        result = await super().get_all(all_bookings_query, user_id=user_id)
-        return result
+            .options(selectinload(cls.model.room))
+            .options(selectinload(cls.model.user).load_only(Users.email))
+            .where(cls.model.user_id == user_id)
+        )
+        session: AsyncSession
+        async with async_session_maker() as session:
+            res = await session.execute(all_bookings_query)
+            return res.scalars().all()
 
     @classmethod
     async def delete_booking(cls, user_id: int, booking_id: int):

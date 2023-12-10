@@ -50,7 +50,7 @@ class BaseDAO:
         async with async_session_maker() as session:
             result = await session.execute(stmt)
             await session.commit()
-            return result.mappings().all()
+            return result.mappings().one()
 
     @classmethod
     async def delete_records(cls, **kwargs):
