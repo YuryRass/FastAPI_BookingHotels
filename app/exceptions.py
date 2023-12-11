@@ -53,3 +53,13 @@ class IncorrectDateValuesException(BookingException):
 class BookingMoreThirtyDaysException(BookingException):
     status_code = status.HTTP_400_BAD_REQUEST
     detail = "Arrival date - Departure date > 30 days"
+
+
+class NoHotelsException(BookingException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    detail = "No hotels"
+
+
+class NoSuchHotelException(BookingException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    detail = "No such hotel"

@@ -4,7 +4,7 @@ from datetime import date
 
 from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload, selectinload
+from sqlalchemy.orm import joinedload
 
 from app.bookings.models import Bookings
 from app.dao.base import BaseDAO
@@ -65,11 +65,9 @@ class BookingsDAO(BaseDAO):
             user_id (int): ID пользователя
         """
         all_bookings_query = (
-            select(
-                cls.model
-            )
-            .options(selectinload(cls.model.room))
-            .options(selectinload(cls.model.user).load_only(Users.email))
+            select(cls.model)
+            .options(joinedload(cls.model.room))
+            .options(joinedload(cls.model.user).load_only(Users.email))
             .where(cls.model.user_id == user_id)
         )
         session: AsyncSession

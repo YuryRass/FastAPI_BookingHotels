@@ -31,3 +31,23 @@ async def test_add_and_get_booking(
     response: Response = await authenticated_ac.get(url="/bookings")
 
     assert booked_rooms == len(response.json())
+
+
+async def test_get_and_delete_bookings(authenticated_ac: AsyncClient):
+    response: Response = await authenticated_ac.get(url="/bookings")
+    user_bookings = response.json()
+
+    assert len(user_bookings) > 0
+
+    # Циклически удаляем все брони авторизованного пользователя
+    for booking in user_bookings:
+        response: Response = await authenticated_ac.delete(
+            url=f"/bookings/{booking['id']}",
+        )
+        assert response.status_code == 204
+
+    # Снова получаем пользовательские брони, которых уже нет
+    response: Response = await authenticated_ac.get(url="/bookings")
+    user_bookings = response.json()
+
+    assert not user_bookings

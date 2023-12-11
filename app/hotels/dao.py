@@ -17,12 +17,7 @@ class HotelDAO(BaseDAO):
     model = Hotels
 
     @classmethod
-    async def find_all(
-        cls,
-        location: str,
-        date_from: date,
-        date_to: date
-    ):
+    async def find_all(cls, location: str, date_from: date, date_to: date):
         """Получение списка отелей, где есть свободные комнтаты
 
         Args:
@@ -32,8 +27,7 @@ class HotelDAO(BaseDAO):
         """
         # получаем список забронированных комнат на заданную дату
         booked_rooms = (
-            select(Bookings).
-            where(
+            select(Bookings).where(
                 and_(
                     Bookings.date_from < date_to,
                     Bookings.date_to > date_from,
@@ -47,42 +41,28 @@ class HotelDAO(BaseDAO):
             select(
                 Rooms,
                 (
-                    Rooms.quantity -
-                    func.count(
-                        booked_rooms.c.room_id
-                    ).filter(
+                    Rooms.quantity
+                    - func.count(booked_rooms.c.room_id).filter(
                         booked_rooms.c.room_id.is_not(None)
                     )
-                ).label('new_quantity')
+                ).label("new_quantity"),
             )
             .select_from(Rooms)
-            .join(
-                booked_rooms, Rooms.id == booked_rooms.c.room_id,
-                isouter=True
-            )
+            .join(booked_rooms, Rooms.id == booked_rooms.c.room_id, isouter=True)
             .group_by(Rooms.id, Rooms.quantity, booked_rooms.c.room_id)
-        ).cte('new_rooms_quantity')
+        ).cte("new_rooms_quantity")
 
         # незанятые отели (где кол-во комнат > 0)
         free_hotels_query = (
             select(
                 cls.model.__table__.columns,
-                func.sum(
-                    new_rooms_quantity.c.new_quantity
-                ).label('rooms_left')
+                func.sum(new_rooms_quantity.c.new_quantity).label("rooms_left"),
             )
             .select_from(Hotels)
-            .join(
-                new_rooms_quantity,
-                new_rooms_quantity.c.hotel_id == Hotels.id
-            )
+            .join(new_rooms_quantity, new_rooms_quantity.c.hotel_id == Hotels.id)
             .where(cls.model.location.contains(location))
             .group_by(cls.model.id)
-            .having(
-                func.sum(
-                    new_rooms_quantity.c.new_quantity
-                ).label('rooms_left') > 0
-            )
+            .having(func.sum(new_rooms_quantity.c.new_quantity).label("rooms_left") > 0)
         )
 
         session: AsyncSession
@@ -91,10 +71,7 @@ class HotelDAO(BaseDAO):
             return free_hotels.mappings().all()
 
     @classmethod
-    async def get_hotel(
-        cls,
-        hotel_id: int
-    ):
+    async def get_hotel(cls, hotel_id: int):
         """Выводит отель по его ID
 
         Args:
