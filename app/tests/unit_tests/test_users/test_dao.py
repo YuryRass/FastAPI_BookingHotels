@@ -9,7 +9,7 @@ from app.users.models import Users
     "email,is_exist",
     [
         ("test@test.com", True),
-        ("artem@example.com", True),
+        ("yury@example.com", True),
         ("...", False),
     ],
 )
