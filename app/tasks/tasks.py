@@ -17,6 +17,4 @@ def modify_picture(path: str):
 
     for width, height in [(400, 200), (1000, 500)]:
         resized_img = img.resize(size=(width, height))
-        resized_img.save(
-            f"app/static/images/resized_{width}_{height}_{img_path.name}"
-        )
+        resized_img.save(f"app/static/images/resized_{width}_{height}_{img_path.name}")

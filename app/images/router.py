@@ -23,4 +23,4 @@ async def add_hotel_image(name_id: int, file: UploadFile):
     img_path: str = f"app/static/images/{name_id}.webp"
     with open(img_path, "wb+") as file_obj:
         shutil.copyfileobj(file.file, file_obj)
-    modify_picture(img_path)
+    modify_picture(img_path)  # фоновая задача

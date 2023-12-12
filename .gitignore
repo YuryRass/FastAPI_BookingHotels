@@ -4,7 +4,7 @@ __pycache__/
 
 # Python enviroments
 .env
+.env-non-dev
 .venv/
 venv/
 env/
-
