@@ -17,6 +17,7 @@ from app.pages.router import router as pages_router
 from app.users.router import router as user_router
 
 app: FastAPI = FastAPI()
+
 app.include_router(user_router)
 app.include_router(bookings_router)
 app.include_router(hotels_router)
@@ -27,17 +28,13 @@ app.include_router(images_router)
 app.mount(path="/static", app=StaticFiles(directory="app/static"), name="static")
 
 
-@app.get(path="/hotels")
-def get_hotels():
-    return "Отель гранд 5 звёзд"
-
-
 @app.on_event("startup")
 async def startup():
     redis = aioredis.from_url(settings.REDIS_URL)
     FastAPICache.init(RedisBackend(redis), prefix="cache")
 
 
+# Админ панель
 admin = Admin(app, engine, authentication_backend=authentication_backend)
 admin.add_view(UsersAdmin)
 admin.add_view(BookingsAdmin)

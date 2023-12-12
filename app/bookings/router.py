@@ -11,7 +11,6 @@ from app.exceptions import NoFreeRoomsException
 from app.users.dependencies import get_current_user
 from app.users.models import Users
 
-
 router: APIRouter = APIRouter(prefix="/bookings", tags=["Бронирование отелей"])
 
 
