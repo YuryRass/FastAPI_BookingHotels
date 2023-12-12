@@ -10,6 +10,8 @@ class Settings(BaseSettings):
 
     MODE: Literal["DEV", "PROD", "TEST"]
 
+    LOG_LEVEL: Literal["INFO", "DEBUG"]
+
     # данные для базы данных PostgreSQL
     DB_HOST: str
     DB_PORT: int

@@ -3,13 +3,16 @@
 from datetime import date
 
 from sqlalchemy import and_, func, select
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from app.bookings.models import Bookings
 from app.dao.base import BaseDAO
 from app.database import async_session_maker
+from app.exceptions import NoFreeRoomsException
 from app.hotels.rooms.models import Rooms
+from app.logger import logger
 from app.users.models import Users
 
 
@@ -33,29 +36,45 @@ class BookingsDAO(BaseDAO):
         Returns:
         """
 
-        # Получаем кол-во свободных комнат на заданные даты
-        rooms_left: int = await cls._get_left_rooms(
-            room_id=room_id, date_from=date_from, date_to=date_to
-        )
-
-        if rooms_left > 0:
-            session: AsyncSession
-            async with async_session_maker() as session:
-                # получаем цену за комнату, которую хотят забронить
-                get_price = select(Rooms.price).filter_by(id=room_id)
-                _price = await session.execute(get_price)
-                price: int = _price.scalar()
-
-            res = await super().add(
-                room_id=room_id,
-                user_id=user_id,
-                date_from=date_from,
-                date_to=date_to,
-                price=price,
+        try:
+            # Получаем кол-во свободных комнат на заданные даты
+            rooms_left: int = await cls._get_left_rooms(
+                room_id=room_id, date_from=date_from, date_to=date_to
             )
-            return res
-        else:
-            return None
+
+            if rooms_left > 0:
+                session: AsyncSession
+                async with async_session_maker() as session:
+                    # получаем цену за комнату, которую хотят забронить
+                    get_price = select(Rooms.price).filter_by(id=room_id)
+                    _price = await session.execute(get_price)
+                    price: int = _price.scalar()
+
+                res = await super().add(
+                    room_id=room_id,
+                    user_id=user_id,
+                    date_from=date_from,
+                    date_to=date_to,
+                    price=price,
+                )
+                return res
+            else:
+                raise NoFreeRoomsException
+
+        except NoFreeRoomsException:
+            raise NoFreeRoomsException
+        except (SQLAlchemyError, Exception) as e:
+            if isinstance(e, SQLAlchemyError):
+                msg = "Database Exc: Cannot add booking"
+            elif isinstance(e, Exception):
+                msg = "Unknown Exc: Cannot add booking"
+            extra = {
+                "user_id": user_id,
+                "room_id": room_id,
+                "date_from": date_from,
+                "date_to": date_to,
+            }
+            logger.error(msg, extra=extra, exc_info=True)
 
     @classmethod
     async def all_bookings(cls, user_id: int):
@@ -126,7 +145,7 @@ class BookingsDAO(BaseDAO):
                 .group_by(Rooms.quantity, booked_rooms.c.room_id)
             )
             # Получаем свободные комнаты на заданные даты
-            rooms_left = await session.execute(get_rooms_left)
-            rooms_left: int = rooms_left.scalar()
+            _rooms_left = await session.execute(get_rooms_left)
+            rooms_left: int = _rooms_left.scalar()
 
             return rooms_left
