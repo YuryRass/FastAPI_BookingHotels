@@ -1,5 +1,8 @@
-from fastapi import APIRouter, File, Response, UploadFile, status
+from fastapi import APIRouter, File, HTTPException, Response, UploadFile, status
+from pydantic import ValidationError
+from sqlalchemy.exc import SQLAlchemyError
 
+from app.exceptions import NoSuchModelException
 from app.importer.init_model import init_model
 
 router: APIRouter = APIRouter(
@@ -9,8 +12,37 @@ router: APIRouter = APIRouter(
 
 
 @router.post("/{model}")
-async def init_hotels_model(
+async def init_model_from_csv_file(
     model: str, response: Response, uploaded_file: UploadFile = File(...)
 ):
-    await init_model(model, uploaded_file.file)
+    """Инициализация SQL модели посредством считывания данных из csv файла
+
+    Args:
+        model (str): SQL модель
+
+        response (Response): HTTP ответ
+
+        uploaded_file (UploadFile, optional): CSV файл. Defaults to File(...).
+    """
+    if model not in ("hotels", "bookings", "rooms"):
+        raise NoSuchModelException
+
+    try:
+        await init_model(model, uploaded_file.file)
+    except ValidationError:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Validation error in the file {uploaded_file.filename}",
+        )
+    except SQLAlchemyError:
+        raise HTTPException(
+            status_code=400,
+            detail="SQLAlchemy exception: Item insert error",
+        )
+    except Exception:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Incorrect data in the file {uploaded_file.filename}",
+        )
+
     response.status_code = status.HTTP_201_CREATED

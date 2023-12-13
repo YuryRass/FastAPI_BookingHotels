@@ -10,4 +10,4 @@ venv/
 env/
 
 # CSV files
-csv_data/
+app/csv

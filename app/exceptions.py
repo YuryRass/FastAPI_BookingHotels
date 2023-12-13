@@ -63,3 +63,8 @@ class NoHotelsException(BookingException):
 class NoSuchHotelException(BookingException):
     status_code = status.HTTP_400_BAD_REQUEST
     detail = "No such hotel"
+
+
+class NoSuchModelException(BookingException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    detail = "No such model. Use one of the following models: hotels, bookings, rooms"

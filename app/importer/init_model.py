@@ -1,5 +1,7 @@
+"""Инициализация SQL моделей путем чтения данных из csv файлов"""
 import csv
 from pathlib import Path
+import time
 from typing import BinaryIO
 
 from app.bookings.dao import BookingsDAO
@@ -26,7 +28,7 @@ async def init_model(model: str, f_io: BinaryIO):
     # save csv to local dir
     csv_path = Path.cwd().joinpath("app").joinpath("csv")
     csv_path.mkdir(exist_ok=True)
-    file_path = csv_path.joinpath(f"{model}.csv")
+    file_path = csv_path.joinpath(f"{model}_{int(time.time())}.csv")
 
     with open(file_path, mode="wb+") as f:
         f.write(f_io.read())
