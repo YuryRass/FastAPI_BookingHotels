@@ -1,0 +1,4 @@
+name,location,services,rooms_quantity,image_id
+FirstHotel,Moscow,wi-fi;sex;spa,4,2
+SecondHotel,Bryansk,wi-fi;alcohol;girls,23,4
+ThirdHotel,Tula,wi-fi;alcohol;girls,24,9
