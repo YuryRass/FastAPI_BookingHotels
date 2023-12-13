@@ -15,6 +15,7 @@ from app.database import engine
 from app.hotels.rooms.router import router as rooms_router
 from app.hotels.router import router as hotels_router
 from app.images.router import router as images_router
+from app.importer.router import router as importer_router
 from app.logger import logger
 from app.pages.router import router as pages_router
 from app.users.router import router as user_router
@@ -27,6 +28,7 @@ app.include_router(hotels_router)
 app.include_router(rooms_router)
 app.include_router(pages_router)
 app.include_router(images_router)
+app.include_router(importer_router)
 
 app.mount(path="/static", app=StaticFiles(directory="app/static"), name="static")
 

@@ -12,8 +12,8 @@ class SRooms(BaseModel):
     services: list[str]
     quantity: int
     image_id: int
-    total_cost: int
-    rooms_left: int
+    total_cost: int | None = None
+    rooms_left: int | None = None
 
     class Config:
         """атрибут from_attributes позволяет обращаться

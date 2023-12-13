@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 class SFreeHotels(BaseModel):
     """Схема для вывода информации о свободных отелях"""
+
     id: int
     name: str
     location: str
@@ -18,11 +19,12 @@ class SFreeHotels(BaseModel):
         """атрибут from_attributes позволяет обращаться
         к pydantic-модели, как к ORM модели
         """
+
         from_attributes = True
 
 
 class SHotel(BaseModel):
-    id: int
+    id: int | None = None
     name: str
     location: str
     services: list[str]
