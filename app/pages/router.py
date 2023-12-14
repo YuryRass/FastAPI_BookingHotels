@@ -8,20 +8,15 @@ router = APIRouter(
     tags=["Frontend"],
 )
 
-templates = Jinja2Templates(
-    directory="app/templates"
-)
+templates = Jinja2Templates(directory="app/templates")
 
 
 @router.get("/hotels")
-async def get_hotels_page(
-    request: Request,
-    hotels=Depends(get_all_hotels)
-):
+async def get_hotels_page(request: Request, hotels=Depends(get_all_hotels)):
     return templates.TemplateResponse(
         name="hotels.html",
         context={
             "request": request,
             "hotels": hotels,
-        }
+        },
     )

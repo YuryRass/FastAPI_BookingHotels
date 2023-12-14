@@ -5,4 +5,5 @@ from app.users.models import Users
 
 class UsersDAO(BaseDAO):
     """DAO объект 'Пользователи'"""
+
     model = Users

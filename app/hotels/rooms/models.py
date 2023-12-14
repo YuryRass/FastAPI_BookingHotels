@@ -12,10 +12,11 @@ if TYPE_CHECKING:
 
 class Rooms(Base):
     """Комнаты отелей"""
+
     __tablename__ = "rooms"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    hotel_id: Mapped[int] = mapped_column(ForeignKey('hotels.id'))
+    hotel_id: Mapped[int] = mapped_column(ForeignKey("hotels.id"))
     name: Mapped[str]
     description: Mapped[str | None]
     price: Mapped[int]

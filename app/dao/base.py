@@ -10,6 +10,7 @@ class BaseDAO:
     Основной DAO.
     Реализует основные CRUD-операции к модели
     """
+
     model = None
 
     @classmethod
@@ -39,13 +40,8 @@ class BaseDAO:
 
     @classmethod
     async def add(cls, **data):
-        """Добавление записи в таблицу
-        """
-        stmt = (
-            insert(cls.model).
-            values(**data).
-            returning(cls.model.__table__.columns)
-        )
+        """Добавление записи в таблицу"""
+        stmt = insert(cls.model).values(**data).returning(cls.model.__table__.columns)
         session: AsyncSession
         async with async_session_maker() as session:
             result = await session.execute(stmt)
@@ -54,11 +50,7 @@ class BaseDAO:
 
     @classmethod
     async def delete_records(cls, **kwargs):
-        stmt = (
-            delete(cls.model).
-            filter_by(**kwargs).
-            returning(cls.model.id)
-        )
+        stmt = delete(cls.model).filter_by(**kwargs).returning(cls.model.id)
 
         session: AsyncSession
         async with async_session_maker() as session:
@@ -74,9 +66,7 @@ class BaseDAO:
             query (CTE): SQL запрос представленный как:
         WITH ... AS (SELECT ...)
         """
-        stmt = (
-            select(query.columns).filter_by(**kwargs)
-        )
+        stmt = select(query.columns).filter_by(**kwargs)
         session: AsyncSession
         async with async_session_maker() as session:
             result = await session.execute(stmt)

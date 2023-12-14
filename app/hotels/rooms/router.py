@@ -5,17 +5,11 @@ from fastapi import APIRouter
 from app.hotels.rooms.dao import RoomDAO
 from app.hotels.rooms.shemas import SRooms
 
-router: APIRouter = APIRouter(
-    prefix="/hotels",
-    tags=["Комнаты отелей"]
-)
+router: APIRouter = APIRouter(prefix="/hotels", tags=["Комнаты отелей"])
 
 
 @router.get("/{hotel_id}/rooms")
-async def get_all_rooms(
-    hotel_id: int, date_from: date, date_to: date
-) -> list[SRooms]:
-
+async def get_all_rooms(hotel_id: int, date_from: date, date_to: date) -> list[SRooms]:
     """Получает список всех комнат для конкретного отеля
 
     Args:

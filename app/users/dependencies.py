@@ -53,18 +53,16 @@ async def get_current_user(token: str = Depends(get_token)) -> Users:
     """
     try:
         payload: dict[str, str] = jwt.decode(
-            token=token,
-            key=settings.SECRET_KEY,
-            algorithms=settings.ALGORITHM
+            token=token, key=settings.SECRET_KEY, algorithms=settings.ALGORITHM
         )
     except JWTError:
         raise IncorrectJWTtokenException
 
-    expire: str | None = payload.get('exp')
+    expire: str | None = payload.get("exp")
     if (not expire) or (int(expire) < datetime.utcnow().timestamp()):
         raise JWTtokenExpiredException
 
-    user_id: str | None = payload.get('sub')
+    user_id: str | None = payload.get("sub")
     if not user_id:
         raise UserIsNotPresentException
 

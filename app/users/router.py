@@ -8,10 +8,7 @@ from app.users.dependencies import get_current_user
 from app.users.models import Users
 from app.users.shemas import SUserAuth
 
-router: APIRouter = APIRouter(
-    prefix="/auth",
-    tags=["Auth & users"]
-)
+router: APIRouter = APIRouter(prefix="/auth", tags=["Auth & users"])
 
 
 @router.post("/register")
@@ -26,23 +23,16 @@ async def user_register(user_data: SUserAuth) -> None:
 
         HTTPException: пользователь уже зареган
     """
-    existing_user: Users | None = await UsersDAO.find_one_or_none(
-        email=user_data.email
-    )
+    existing_user: Users | None = await UsersDAO.find_one_or_none(email=user_data.email)
     # Если пользователь уже есть в БД (т.е. он зарегитсрирован),
     # то мы вызываем исключение (повторная регистрация нам не нужна)
     if existing_user:
         raise UserIsAllredyRegistered
-    password_hash: str = get_password_hash(
-        password=user_data.password
-    )
-    await UsersDAO.add(
-        email=user_data.email,
-        hashed_password=password_hash
-    )
+    password_hash: str = get_password_hash(password=user_data.password)
+    await UsersDAO.add(email=user_data.email, hashed_password=password_hash)
 
 
-@router.post('/login')
+@router.post("/login")
 async def login_user(response: Response, user_data: SUserAuth):
     """Вход пользователя на сайт
 
@@ -60,22 +50,16 @@ async def login_user(response: Response, user_data: SUserAuth):
 
         str: JWT токен
     """
-    user: Users | None = await authentication_user(
-        user_data.email, user_data.password
-    )
+    user: Users | None = await authentication_user(user_data.email, user_data.password)
     if not user:
         raise IncorrectEmailOrPasswordException
     else:
         jwt_token: str = create_jwt_token({"sub": str(user.id)})
-        response.set_cookie(
-            key=COOKIE_KEY,
-            value=jwt_token,
-            httponly=True
-        )
+        response.set_cookie(key=COOKIE_KEY, value=jwt_token, httponly=True)
         return jwt_token
 
 
-@router.post('/logout')
+@router.post("/logout")
 async def logout_user(response: Response):
     """Выход пользователя из сайта
 
@@ -86,7 +70,7 @@ async def logout_user(response: Response):
     response.delete_cookie(key=COOKIE_KEY)
 
 
-@router.get('/me')
+@router.get("/me")
 async def read_users_me(current_user: Users = Depends(get_current_user)):
     """Вывод инфорации о текущем пользователе
 

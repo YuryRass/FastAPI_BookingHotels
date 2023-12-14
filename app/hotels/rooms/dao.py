@@ -14,12 +14,7 @@ class RoomDAO(BaseDAO):
     model = Rooms
 
     @classmethod
-    async def find_all(
-        cls,
-        hotel_id: int,
-        date_from: date,
-        date_to: date
-    ):
+    async def find_all(cls, hotel_id: int, date_from: date, date_to: date):
         """Возвращает список всех номеров комнат
         определенного отеля для конкретных дат
 
@@ -32,8 +27,7 @@ class RoomDAO(BaseDAO):
         # получаем забронированные комнаты на заданную дату
         # для всех отелей
         booked_rooms = (
-            select(Bookings)
-            .where(
+            select(Bookings).where(
                 and_(
                     Bookings.date_from < date_to,
                     Bookings.date_to > date_from,
@@ -44,26 +38,18 @@ class RoomDAO(BaseDAO):
         get_rooms_query = (
             select(
                 Rooms.__table__.columns,
-                (Rooms.price * (date_to - date_from).days)
-                .label('total_cost'),
+                (Rooms.price * (date_to - date_from).days).label("total_cost"),
                 (
-                    Rooms.quantity -
-                    func.count(
-                        booked_rooms.c.room_id
+                    Rooms.quantity
+                    - func.count(booked_rooms.c.room_id).filter(
+                        booked_rooms.c.room_id.isnot(None)
                     )
-                    .filter(booked_rooms.c.room_id.isnot(None))
-                ).label('rooms_left')
+                ).label("rooms_left"),
             )
             .select_from(Rooms)
-            .join(
-                booked_rooms, Rooms.id == booked_rooms.c.room_id,
-                isouter=True
-            )
+            .join(booked_rooms, Rooms.id == booked_rooms.c.room_id, isouter=True)
             .where(Rooms.hotel_id == hotel_id)
-            .group_by(
-                Rooms.id, Rooms.quantity,
-                booked_rooms.c.room_id
-            )
+            .group_by(Rooms.id, Rooms.quantity, booked_rooms.c.room_id)
         ).cte("get_rooms_query")
 
         res = await super().get_all(get_rooms_query)
