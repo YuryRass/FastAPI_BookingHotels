@@ -8,7 +8,7 @@ RUN pip install poetry
 
 COPY poetry.lock pyproject.toml /booking/
 
-RUN poetry config virtualenvs.create false && poetry install
+RUN poetry config virtualenvs.create false && poetry install --no-dev
 
 COPY . /booking
 
