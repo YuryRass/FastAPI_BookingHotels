@@ -1,7 +1,8 @@
 """Инициализация SQL моделей путем чтения данных из csv файлов"""
 import csv
-from pathlib import Path
 import time
+from enum import Enum
+from pathlib import Path
 from typing import BinaryIO
 
 from app.bookings.dao import BookingsDAO
@@ -11,16 +12,23 @@ from app.hotels.rooms.dao import RoomDAO
 from app.hotels.rooms.shemas import SRooms
 from app.hotels.shemas import SHotel
 
+
+class SQLModel(str, Enum):
+    hotels = "hotels"
+    rooms = "rooms"
+    bookings = "bookings"
+
+
 shemes: dict[str, SHotel] = {
-    "hotels": SHotel,
-    "bookings": SBookings,
-    "rooms": SRooms,
+    SQLModel.hotels: SHotel,
+    SQLModel.bookings: SBookings,
+    SQLModel.rooms: SRooms,
 }
 
 dao: dict[str, HotelDAO] = {
-    "hotels": HotelDAO,
-    "bookings": BookingsDAO,
-    "rooms": RoomDAO,
+    SQLModel.hotels: HotelDAO,
+    SQLModel.bookings: BookingsDAO,
+    SQLModel.rooms: RoomDAO,
 }
 
 

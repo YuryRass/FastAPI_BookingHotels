@@ -2,8 +2,7 @@ from fastapi import APIRouter, File, HTTPException, Response, UploadFile, status
 from pydantic import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.exceptions import NoSuchModelException
-from app.importer.init_model import init_model
+from app.importer.init_model import SQLModel, init_model
 
 router: APIRouter = APIRouter(
     prefix="/import",
@@ -13,7 +12,9 @@ router: APIRouter = APIRouter(
 
 @router.post("/{model}")
 async def init_model_from_csv_file(
-    model: str, response: Response, uploaded_file: UploadFile = File(...)
+    model: SQLModel,
+    response: Response,
+    uploaded_file: UploadFile = File(...),
 ):
     """Инициализация SQL модели посредством считывания данных из csv файла
 
@@ -24,8 +25,6 @@ async def init_model_from_csv_file(
 
         uploaded_file (UploadFile, optional): CSV файл. Defaults to File(...).
     """
-    if model not in ("hotels", "bookings", "rooms"):
-        raise NoSuchModelException
 
     try:
         await init_model(model, uploaded_file.file)
