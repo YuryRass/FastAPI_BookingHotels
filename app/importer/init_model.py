@@ -1,4 +1,5 @@
 """Инициализация SQL моделей путем чтения данных из csv файлов"""
+from ast import literal_eval
 import csv
 import time
 from enum import Enum
@@ -48,7 +49,7 @@ async def init_model(model: str, f_io: BinaryIO):
         csv_reader = csv.DictReader(csvf)
         for rows in csv_reader:
             if rows.get("services"):
-                rows["services"] = rows["services"].split(";")
+                rows["services"] = literal_eval(rows["services"])
             csv_data.append(smodel(**rows).model_dump(exclude_none=True))
 
     model_dao = dao[model]
