@@ -12,10 +12,7 @@ if TYPE_CHECKING:
 class Users(Base):
     """Пользователи сайта Booking"""
 
-    __tablename__ = "users"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    email: Mapped[str]
+    email: Mapped[str] = mapped_column(unique=True)
     hashed_password: Mapped[str]
 
     bookings: Mapped[list["Bookings"]] = relationship(back_populates="user")

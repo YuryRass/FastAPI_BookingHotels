@@ -15,10 +15,7 @@ if TYPE_CHECKING:
 class Hotels(Base):
     """Отели"""
 
-    __tablename__ = "hotels"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str]
+    name: Mapped[str] = mapped_column(unique=True)
     location: Mapped[str]
     services: Mapped[list[str]] = mapped_column(JSON)
     rooms_quantity: Mapped[int]
