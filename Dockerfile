@@ -4,11 +4,13 @@ RUN mkdir /booking
 
 WORKDIR /booking
 
-COPY requirements.txt .
+RUN pip install poetry
 
-RUN pip install -r requirements.txt
+COPY poetry.lock pyproject.toml /booking/
 
-COPY . .
+RUN poetry install
+
+COPY . /booking
 
 RUN chmod a+x /booking/docker/*.sh
 
