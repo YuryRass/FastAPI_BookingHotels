@@ -1,7 +1,7 @@
 """Инициализация SQL моделей путем чтения данных из csv файлов"""
-from ast import literal_eval
 import csv
 import time
+from ast import literal_eval
 from enum import Enum
 from pathlib import Path
 from typing import BinaryIO
