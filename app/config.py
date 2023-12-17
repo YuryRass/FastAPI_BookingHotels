@@ -35,6 +35,10 @@ class Settings(BaseSettings):
     REDIS_HOST: str
     REDIS_PORT: int
 
+    # Для telegram бота
+    BOT_TOKEN: str
+    TG_USER_ID: int
+
     @property
     def DATABASE_URL(self):
         return (
@@ -52,6 +56,10 @@ class Settings(BaseSettings):
     @property
     def REDIS_URL(self):
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}"
+
+    @property
+    def TG_SEND_MESSAGE_URL(self):
+        return f"https://api.telegram.org/bot{self.BOT_TOKEN}"
 
     model_config = SettingsConfigDict(env_file=".env")
 

@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Response
 
 from app.config import COOKIE_KEY
 from app.exceptions import IncorrectEmailOrPasswordException, UserIsAllredyRegistered
+from app.tasks.tasks import send_message_to_telegram_user
 from app.users.auth import authentication_user, create_jwt_token, get_password_hash
 from app.users.dao import UsersDAO
 from app.users.dependencies import get_current_user
@@ -30,6 +31,12 @@ async def user_register(user_data: SUserAuth) -> None:
         raise UserIsAllredyRegistered
     password_hash: str = get_password_hash(password=user_data.password)
     await UsersDAO.add(email=user_data.email, hashed_password=password_hash)
+    message_for_telegram_user = (
+        f"Пользователь {user_data.email} зарегистрировался "
+        + "на сайте 'Booking hotels'"
+    )
+
+    await send_message_to_telegram_user(message_for_telegram_user)
 
 
 @router.post("/login")
