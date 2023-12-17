@@ -1,9 +1,11 @@
 import time
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from prometheus_fastapi_instrumentator import Instrumentator
 from redis import asyncio as aioredis
 from sqladmin import Admin
 
@@ -18,9 +20,19 @@ from app.images.router import router as images_router
 from app.importer.router import router as importer_router
 from app.logger import logger
 from app.pages.router import router as pages_router
+from app.prometheus.router import router as prometheus_router
 from app.users.router import router as user_router
 
-app: FastAPI = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    redis = aioredis.from_url(settings.REDIS_URL)
+    FastAPICache.init(RedisBackend(redis), prefix="cache")
+    yield
+    FastAPICache.clear()
+
+
+app: FastAPI = FastAPI(lifespan=lifespan)
 
 app.include_router(user_router)
 app.include_router(bookings_router)
@@ -29,14 +41,21 @@ app.include_router(rooms_router)
 app.include_router(pages_router)
 app.include_router(images_router)
 app.include_router(importer_router)
+app.include_router(prometheus_router)
 
-app.mount(path="/static", app=StaticFiles(directory="app/static"), name="static")
+app.mount(
+    path="/static",
+    app=StaticFiles(directory="app/static"),
+    name="static",
+)
 
 
-@app.on_event("startup")
-async def startup():
-    redis = aioredis.from_url(settings.REDIS_URL)
-    FastAPICache.init(RedisBackend(redis), prefix="cache")
+instrumentator = Instrumentator(
+    should_group_status_codes=False,
+    # не осуществляет аналитику по админке и энд-поинту /metrics
+    excluded_handlers=[".*admin.*", "/metrics"],
+)
+instrumentator.instrument(app).expose(app)
 
 
 # Админ панель
