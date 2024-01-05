@@ -8,16 +8,13 @@ from app.hotels.rooms.shemas import SRooms
 router: APIRouter = APIRouter(prefix="/hotels", tags=["Комнаты отелей"])
 
 
-@router.get("/{hotel_id}/rooms")
+@router.get("/{hotel_id}/rooms", summary="Список все комнат")
 async def get_all_rooms(hotel_id: int, date_from: date, date_to: date) -> list[SRooms]:
     """Получает список всех комнат для конкретного отеля
-
     Args:
 
         hotel_id (int): ID отеля
-
         date_from (date): дата заезда
-
         date_to (date): дата выезда
 
     Returns:

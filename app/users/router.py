@@ -9,10 +9,13 @@ from app.users.dependencies import get_current_user
 from app.users.models import Users
 from app.users.shemas import SUserAuth
 
-router: APIRouter = APIRouter(prefix="/auth", tags=["Auth & users"])
+router: APIRouter = APIRouter(
+    prefix="/auth",
+    tags=["Auth & users"],
+)
 
 
-@router.post("/register")
+@router.post("/register", summary="Регистрация пользователя")
 async def user_register(user_data: SUserAuth) -> None:
     """Регистрация пользователя
 
@@ -39,7 +42,7 @@ async def user_register(user_data: SUserAuth) -> None:
     await send_message_to_telegram_user(message_for_telegram_user)
 
 
-@router.post("/login")
+@router.post("/login", summary="Вход на сайт")
 async def login_user(response: Response, user_data: SUserAuth):
     """Вход пользователя на сайт
 
@@ -66,7 +69,7 @@ async def login_user(response: Response, user_data: SUserAuth):
         return jwt_token
 
 
-@router.post("/logout")
+@router.post("/logout", summary="Выход из сайта")
 async def logout_user(response: Response):
     """Выход пользователя из сайта
 
@@ -77,7 +80,7 @@ async def logout_user(response: Response):
     response.delete_cookie(key=COOKIE_KEY)
 
 
-@router.get("/me")
+@router.get("/me", summary="Информация о пользователе")
 async def read_users_me(current_user: Users = Depends(get_current_user)):
     """Вывод инфорации о текущем пользователе
 

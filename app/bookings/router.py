@@ -14,7 +14,7 @@ from app.users.models import Users
 router: APIRouter = APIRouter(prefix="/bookings", tags=["Бронирование отелей"])
 
 
-@router.get("")
+@router.get("", summary="Список всех броней")
 async def get_bookings(user: Users = Depends(get_current_user)):
     """Возвращает информацию по бронированиям отелей
     для авторизованного пользователя
@@ -29,7 +29,7 @@ async def get_bookings(user: Users = Depends(get_current_user)):
     return jsonable_encoder(res)
 
 
-@router.post("")
+@router.post("", summary="Бронирование отеля")
 async def add_booking_for_user(
     room_id: int,
     date_from: date,
@@ -62,7 +62,7 @@ async def add_booking_for_user(
     return booking
 
 
-@router.delete("/{booking_id}")
+@router.delete("/{booking_id}", summary="Удаление брони")
 async def delete_booking(
     booking_id: int, response: Response, user: Users = Depends(get_current_user)
 ):

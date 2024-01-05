@@ -16,7 +16,7 @@ from app.hotels.shemas import SFreeHotels, SHotel
 router: APIRouter = APIRouter(prefix="/hotels", tags=["Отели"])
 
 
-@router.get("/{location}")
+@router.get("/{location}", summary="Список всех отелей")
 @cache(expire=30)
 async def get_all_hotels(
     location: str,
@@ -49,7 +49,7 @@ async def get_all_hotels(
     return hotels
 
 
-@router.get("/id/{hotel_id}")
+@router.get("/id/{hotel_id}", summary="Вывод отеля")
 async def get_hotel(hotel_id: int) -> SHotel:
     """Вывод отеля по его ID
 
