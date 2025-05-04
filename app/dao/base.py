@@ -1,8 +1,9 @@
 """Основной DAO (Data Access Object)"""
+
 from sqlalchemy import CTE, delete, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import async_session_maker
+from app.infrastructure.database import async_session_maker
 
 
 class BaseDAO:

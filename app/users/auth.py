@@ -1,5 +1,7 @@
 """Модуль отвечает за хеширование и сверку пользоватльских паролей"""
+import datetime as dt
 from datetime import datetime, timedelta
+from typing import Any
 
 from jose import jwt
 from passlib.context import CryptContext
@@ -71,11 +73,11 @@ def create_jwt_token(data: dict[str, str]) -> str:
     Returns:
         str: JWT токен
     """
-    to_encode: dict[str, str] = data.copy()
+    to_encode: dict[str, Any] = data.copy()
 
     # добавляем в полезную нагрузку
     # время жизни JWT токена пользователя
-    expire: datetime = datetime.utcnow() + timedelta(minutes=30)
+    expire: datetime = datetime.now(dt.timezone.utc) + timedelta(minutes=30)
     to_encode.update({"exp": expire})
 
     jwt_token: str = jwt.encode(

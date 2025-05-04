@@ -9,9 +9,9 @@ from sqlalchemy.orm import joinedload
 
 from app.bookings.models import Bookings
 from app.dao.base import BaseDAO
-from app.database import async_session_maker
 from app.exceptions import NoFreeRoomsException
 from app.hotels.rooms.models import Rooms
+from app.infrastructure.database import async_session_maker
 from app.logger import logger
 from app.users.models import Users
 
@@ -23,7 +23,11 @@ class BookingsDAO(BaseDAO):
 
     @classmethod
     async def add_booking(
-        cls, user_id: int, room_id: int, date_from: date, date_to: date
+        cls,
+        user_id: int,
+        room_id: int,
+        date_from: date,
+        date_to: date,
     ):
         """Осуществляет бронирование комнаты, если есть свободные номера
 
@@ -38,8 +42,10 @@ class BookingsDAO(BaseDAO):
 
         try:
             # Получаем кол-во свободных комнат на заданные даты
-            rooms_left: int = await cls._get_left_rooms(
-                room_id=room_id, date_from=date_from, date_to=date_to
+            rooms_left = await cls._get_left_rooms(
+                room_id=room_id,
+                date_from=date_from,
+                date_to=date_to,
             )
 
             if rooms_left > 0:
@@ -48,8 +54,7 @@ class BookingsDAO(BaseDAO):
                     # получаем цену за комнату, которую хотят забронить
                     get_price = select(Rooms.price).filter_by(id=room_id)
                     _price = await session.execute(get_price)
-                    price: int = _price.scalar()
-
+                    price = _price.scalar()
                 res = await super().add(
                     room_id=room_id,
                     user_id=user_id,
@@ -63,10 +68,11 @@ class BookingsDAO(BaseDAO):
 
         except NoFreeRoomsException:
             raise NoFreeRoomsException
-        except (SQLAlchemyError, Exception) as e:
-            if isinstance(e, SQLAlchemyError):
+        except (SQLAlchemyError, Exception) as exc:
+            msg = None
+            if isinstance(exc, SQLAlchemyError):
                 msg = "Database Exc: Cannot add booking"
-            elif isinstance(e, Exception):
+            elif isinstance(exc, Exception):
                 msg = "Unknown Exc: Cannot add booking"
             extra = {
                 "user_id": user_id,
@@ -107,7 +113,12 @@ class BookingsDAO(BaseDAO):
         return res
 
     @classmethod
-    async def _get_left_rooms(cls, room_id: int, date_from: date, date_to: date) -> int:
+    async def _get_left_rooms(
+        cls,
+        room_id: int,
+        date_from: date,
+        date_to: date,
+    ) -> int:
         """Возвращает кол-во свободных комнат на заданные даты
 
         Args:
@@ -146,6 +157,8 @@ class BookingsDAO(BaseDAO):
             )
             # Получаем свободные комнаты на заданные даты
             _rooms_left = await session.execute(get_rooms_left)
-            rooms_left: int = _rooms_left.scalar()
+            return _rooms_left.scalar_one()
 
-            return rooms_left
+
+async def get_bookings_dao() -> BookingsDAO:
+    return BookingsDAO()

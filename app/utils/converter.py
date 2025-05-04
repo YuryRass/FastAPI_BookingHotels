@@ -15,7 +15,7 @@ if __name__ == "__main__":
     csv_dir: Path = Path.cwd().joinpath("csv_data")
 
     for fname in os.listdir(json_dir):
-        if fname.endswith(".json") and 'users' not in fname:
+        if fname.endswith(".json") and "users" not in fname:
             csv_file = fname.replace("mock", "data").replace(".json", ".csv")
             converter_json_to_csv(
                 json_dir.joinpath(fname),

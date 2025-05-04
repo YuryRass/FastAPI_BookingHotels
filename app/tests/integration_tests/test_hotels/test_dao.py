@@ -26,4 +26,3 @@ async def test_find_all_hotels(
 
     assert location in all_hotels[0]["location"]
     assert all_hotels[0]["rooms_left"] == rooms_left
-

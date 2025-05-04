@@ -8,9 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.bookings.models import Bookings
 from app.config import COOKIE_KEY, settings
-from app.database import Base, async_session_maker, engine
 from app.hotels.models import Hotels
 from app.hotels.rooms.models import Rooms
+from app.infrastructure.database import Base, async_session_maker, engine
 from app.main import app as fastapi_app
 from app.users.models import Users
 

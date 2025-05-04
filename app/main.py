@@ -11,17 +11,10 @@ from sqladmin import Admin
 
 from app.admin.auth import authentication_backend
 from app.admin.views import BookingsAdmin, HotelsAdmin, RoomsAdmin, UsersAdmin
-from app.bookings.router import router as bookings_router
 from app.config import settings
-from app.database import engine
-from app.hotels.rooms.router import router as rooms_router
-from app.hotels.router import router as hotels_router
-from app.images.router import router as images_router
-from app.importer.router import router as importer_router
+from app.infrastructure.database import engine
 from app.logger import logger
-from app.pages.router import router as pages_router
-from app.prometheus.router import router as prometheus_router
-from app.users.router import router as user_router
+from app.routers.v1 import api_router
 
 
 @asynccontextmanager
@@ -29,19 +22,12 @@ async def lifespan(app: FastAPI):
     redis = aioredis.from_url(settings.REDIS_URL)
     FastAPICache.init(RedisBackend(redis), prefix="cache")
     yield
-    FastAPICache.clear()
+    FastAPICache.clear()  # type: ignore
 
 
 app: FastAPI = FastAPI(lifespan=lifespan)
 
-app.include_router(user_router)
-app.include_router(bookings_router)
-app.include_router(hotels_router)
-app.include_router(rooms_router)
-app.include_router(pages_router)
-app.include_router(images_router)
-app.include_router(importer_router)
-app.include_router(prometheus_router)
+app.include_router(api_router)
 
 app.mount(
     path="/static",

@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import Computed, Date, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database import Base
+from app.infrastructure.database import Base
 
 if TYPE_CHECKING:
     from app.hotels.rooms.models import Rooms

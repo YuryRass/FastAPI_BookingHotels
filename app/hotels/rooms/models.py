@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import JSON, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database import Base
+from app.infrastructure.database import Base
 
 if TYPE_CHECKING:
     from app.bookings.models import Bookings
