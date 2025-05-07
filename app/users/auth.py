@@ -15,7 +15,8 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def get_password_hash(password: str) -> str:
-    """Возвращает захешированный пароль
+    """
+    Возвращает захешированный пароль
 
     Args:
         password (str): пароль
@@ -77,7 +78,7 @@ def create_jwt_token(data: dict[str, str]) -> str:
 
     # добавляем в полезную нагрузку
     # время жизни JWT токена пользователя
-    expire: datetime = datetime.now(dt.timezone.utc) + timedelta(minutes=30)
+    expire = (datetime.now(tz=dt.UTC) + timedelta(minutes=30)).timestamp()
     to_encode.update({"exp": expire})
 
     jwt_token: str = jwt.encode(
