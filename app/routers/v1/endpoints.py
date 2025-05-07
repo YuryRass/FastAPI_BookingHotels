@@ -7,7 +7,7 @@ from app.images.router import router as images_router
 from app.importer.router import router as importer_router
 from app.pages.router import router as pages_router
 from app.prometheus.router import router as prometheus_router
-from app.users.router import router as user_router
+from app.users.auth.jwt_auth.router import router as jwt_user_router
 
 api_router = APIRouter()
 
@@ -19,7 +19,7 @@ routers = (
     importer_router,
     pages_router,
     prometheus_router,
-    user_router,
+    jwt_user_router,
 )
 
 for router in routers:

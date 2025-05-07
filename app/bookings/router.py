@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, Response, status
 from app.bookings.dependecies import get_bookings_service
 from app.bookings.service import BookingsService
 from app.bookings.shemas import BookingsAll, SBookings
-from app.users.dependencies import get_current_user
+from app.users.auth.jwt_auth.dependencies import get_current_user
 from app.users.models import Users
 
 router: APIRouter = APIRouter(prefix="/bookings", tags=["Бронирование отелей"])
