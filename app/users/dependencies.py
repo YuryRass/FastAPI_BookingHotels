@@ -3,6 +3,7 @@
 заходящим на сайт 'BookingHotels'
 """
 
+import datetime as dt
 from datetime import datetime
 
 from fastapi import Depends, Request
@@ -59,14 +60,14 @@ async def get_current_user(token: str = Depends(get_token)) -> Users:
         raise IncorrectJWTtokenException
 
     expire: str | None = payload.get("exp")
-    if (not expire) or (int(expire) < datetime.utcnow().timestamp()):
+    if (not expire) or (int(expire) < datetime.now(tz=dt.UTC).timestamp()):
         raise JWTtokenExpiredException
 
     user_id: str | None = payload.get("sub")
     if not user_id:
         raise UserIsNotPresentException
 
-    user: Users = await UsersDAO.find_one_or_none(id=int(user_id))
+    user: Users | None = await UsersDAO.find_one_or_none(id=int(user_id))
     if not user:
         raise UserIsNotPresentException
 
