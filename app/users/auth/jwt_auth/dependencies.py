@@ -17,7 +17,8 @@ from app.exceptions import (
     UserIsNotPresentException,
     UserUnauthorizedException,
 )
-from app.users.dao import UsersDAO
+from app.users.auth.jwt_auth.service import UserJWTAuthService
+from app.users.dao import UsersDAO, get_user_dao
 from app.users.models import Users
 
 
@@ -73,3 +74,7 @@ async def get_current_user(token: str = Depends(get_token)) -> Users:
         raise UserIsNotPresentException
 
     return user
+
+
+async def get_user_auth_service(user_dao: UsersDAO = Depends(get_user_dao)):
+    return UserJWTAuthService(user_dao=user_dao)

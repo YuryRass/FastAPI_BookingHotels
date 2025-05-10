@@ -1,15 +1,7 @@
 from fastapi import APIRouter, Depends, Response
 
-from app.config import COOKIE_KEY
-from app.exceptions import IncorrectEmailOrPasswordException, UserIsAllredyRegistered
-from app.tasks.tasks import send_message_to_telegram_user
-from app.users.auth.jwt_auth.auth import (
-    authentication_user,
-    create_jwt_token,
-    get_password_hash,
-)
-from app.users.auth.jwt_auth.dependencies import get_current_user
-from app.users.dao import UsersDAO
+from app.users.auth.jwt_auth.dependencies import get_current_user, get_user_auth_service
+from app.users.auth.jwt_auth.service import UserJWTAuthService
 from app.users.models import Users
 from app.users.shemas import SUserAuth
 
@@ -20,7 +12,10 @@ router: APIRouter = APIRouter(
 
 
 @router.post("/register", summary="Регистрация пользователя")
-async def user_register(user_data: SUserAuth) -> None:
+async def user_register(
+    user_data: SUserAuth,
+    user_service: UserJWTAuthService = Depends(get_user_auth_service),
+) -> None:
     """Регистрация пользователя
 
     Args:
@@ -31,23 +26,15 @@ async def user_register(user_data: SUserAuth) -> None:
 
         HTTPException: пользователь уже зареган
     """
-    existing_user: Users | None = await UsersDAO.find_one_or_none(email=user_data.email)
-    # Если пользователь уже есть в БД (т.е. он зарегитсрирован),
-    # то мы вызываем исключение (повторная регистрация нам не нужна)
-    if existing_user:
-        raise UserIsAllredyRegistered
-    password_hash: str = get_password_hash(password=user_data.password)
-    await UsersDAO.add(email=user_data.email, hashed_password=password_hash)
-    message_for_telegram_user = (
-        f"Пользователь {user_data.email} зарегистрировался "
-        + "на сайте 'Booking hotels'"
-    )
-
-    await send_message_to_telegram_user(message_for_telegram_user)
+    await user_service.user_register(user_data=user_data)
 
 
 @router.post("/login", summary="Вход на сайт")
-async def login_user(response: Response, user_data: SUserAuth):
+async def login_user(
+    response: Response,
+    user_data: SUserAuth,
+    user_service: UserJWTAuthService = Depends(get_user_auth_service),
+) -> str:
     """Вход пользователя на сайт
 
     Args:
@@ -64,28 +51,28 @@ async def login_user(response: Response, user_data: SUserAuth):
 
         str: JWT токен
     """
-    user: Users | None = await authentication_user(user_data.email, user_data.password)
-    if not user:
-        raise IncorrectEmailOrPasswordException
-    else:
-        jwt_token: str = create_jwt_token({"sub": str(user.id)})
-        response.set_cookie(key=COOKIE_KEY, value=jwt_token, httponly=True)
-        return jwt_token
+    return await user_service.login_user(response, user_data)
 
 
 @router.post("/logout", summary="Выход из сайта")
-async def logout_user(response: Response):
+async def logout_user(
+    response: Response,
+    user_service: UserJWTAuthService = Depends(get_user_auth_service),
+):
     """Выход пользователя из сайта
 
     Args:
 
         response (Response): HTTP ответ
     """
-    response.delete_cookie(key=COOKIE_KEY)
+    await user_service.logout_user(response)
 
 
 @router.get("/me", summary="Информация о пользователе")
-async def read_users_me(current_user: Users = Depends(get_current_user)):
+async def read_users_me(
+    user_service: UserJWTAuthService = Depends(get_user_auth_service),
+    current_user: Users = Depends(get_current_user),
+):
     """Вывод инфорации о текущем пользователе
 
     Args:
@@ -96,4 +83,4 @@ async def read_users_me(current_user: Users = Depends(get_current_user)):
 
         Users: текущий пользователь
     """
-    return current_user
+    return await user_service.read_users_me(current_user)

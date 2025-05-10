@@ -7,3 +7,7 @@ class UsersDAO(BaseDAO):
     """DAO объект 'Пользователи'"""
 
     model = Users
+
+
+async def get_user_dao() -> UsersDAO:
+    return UsersDAO()
