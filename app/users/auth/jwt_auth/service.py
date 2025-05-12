@@ -5,7 +5,7 @@ from fastapi import Response
 from app.config import COOKIE_KEY
 from app.exceptions import IncorrectEmailOrPasswordException, UserIsAllredyRegistered
 from app.tasks.tasks import send_message_to_telegram_user
-from app.users.auth.jwt_auth.auth import (
+from app.users.auth.jwt_auth.jwt import (
     authentication_user,
     create_jwt_token,
     get_password_hash,

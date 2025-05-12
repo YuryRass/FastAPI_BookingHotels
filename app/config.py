@@ -35,6 +35,12 @@ class Settings(BaseSettings):
     BOT_TOKEN: str
     TG_USER_ID: int
 
+    # Google авторизация
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_SECRET_KEY: str = ""
+    GOOGLE_REDIRECT_URI: str = ""
+    GOOGLE_TOKEN_URL: str = "https://accounts.google.com/o/oauth2/token"
+
     @property
     def DATABASE_URL(self):
         return (
@@ -57,7 +63,20 @@ class Settings(BaseSettings):
     def TG_SEND_MESSAGE_URL(self):
         return f"https://api.telegram.org/bot{self.BOT_TOKEN}"
 
+    @property
+    def google_redirect_url(self) -> str:
+        return (
+            f"https://accounts.google.com/o/oauth2/auth?response_type=code"
+            f"&client_id={self.GOOGLE_CLIENT_ID}&"
+            f"redirect_uri={self.GOOGLE_REDIRECT_URI}"
+            f"&scope=openid%20profile%20email&access_type=offline"
+        )
+
     model_config = SettingsConfigDict(env_file=".env")
 
 
 settings = Settings()
+
+
+async def get_settings() -> Settings:
+    return Settings()
